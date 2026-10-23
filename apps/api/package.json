@@ -36,7 +36,7 @@
 		"@app/schemas": "workspace:*",
 		"@app/tracing": "workspace:*",
 		"@app/version": "workspace:*",
-		"@hono/node-server": "^2.1.1",
+		"@hono/node-server": "^2.1.5",
 		"@mobily/ts-belt": "catalog:",
 		"@neondatabase/serverless": "catalog:",
 		"@orpc/json-schema": "^1.15.3",
@@ -47,7 +47,7 @@
 		"amqplib": "catalog:",
 		"better-auth": "catalog:",
 		"drizzle-orm": "catalog:",
-		"effect": "4.0.0-rc.115",
+		"effect": "4.0.5",
 		"hono": "^4.13.8",
 		"ioredis": "^6.0.0",
 		"pg": "catalog:",
@@ -56,12 +56,12 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@electric-sql/pglite": "^0.5.8",
+		"@electric-sql/pglite": "^0.5.10",
 		"@types/pg": "catalog:",
 		"@types/ws": "catalog:",
 		"dotenv": "^17.3.1",
 		"drizzle-kit": "catalog:",
-		"tsx": "^4.21.0",
+		"tsx": "^4.23.15",
 		"typescript": "catalog:",
 		"vite-tsconfig-paths": "catalog:",
 		"vitest": "catalog:"
