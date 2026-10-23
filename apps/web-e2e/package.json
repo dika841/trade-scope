@@ -1,0 +1,22 @@
+{
+	"name": "@app/web-e2e",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"e2e": "playwright test",
+		"install-browsers": "playwright install --with-deps chromium",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@app/activity": "workspace:*",
+		"@app/messages": "workspace:*",
+		"@app/permissions": "workspace:*",
+		"@app/schemas": "workspace:*",
+		"@playwright/test": "^1.49.0",
+		"typescript": "catalog:"
+	},
+	"dependencies": {
+		"ts-pattern": "catalog:"
+	}
+}

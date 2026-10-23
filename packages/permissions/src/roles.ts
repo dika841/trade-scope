@@ -1,0 +1,59 @@
+import {
+	ALL_PERMISSIONS,
+	PERMISSION,
+	type TPermission,
+} from "./permissions.ts";
+
+export const ROLE = {
+	SUPERADMIN: "superadmin",
+	ADMIN: "admin",
+	ANALYST: "analyst",
+	VIEWER: "viewer",
+} as const;
+
+export type TRole = (typeof ROLE)[keyof typeof ROLE];
+
+const ROLES: readonly TRole[] = Object.values(ROLE);
+
+export const isRole = (value: string): value is TRole =>
+	ROLES.some((role) => role === value);
+
+const OPERATIONS: readonly TPermission[] = [
+	PERMISSION.ACTIVITY_READ,
+	PERMISSION.CATALOG_READ,
+	PERMISSION.CATALOG_MANAGE,
+	PERMISSION.INGESTION_READ,
+	PERMISSION.INGESTION_RUN,
+	PERMISSION.PILOT_READ,
+	PERMISSION.PILOT_MANAGE,
+	PERMISSION.REPORT_READ,
+	PERMISSION.REPORT_MANAGE,
+	PERMISSION.USER_MANAGE,
+];
+
+const ANALYST_PERMISSIONS: readonly TPermission[] = [
+	PERMISSION.ACTIVITY_READ,
+	PERMISSION.CATALOG_READ,
+	PERMISSION.CATALOG_MANAGE,
+	PERMISSION.INGESTION_READ,
+	PERMISSION.INGESTION_RUN,
+	PERMISSION.PILOT_READ,
+	PERMISSION.REPORT_READ,
+];
+
+const VIEWER_PERMISSIONS: readonly TPermission[] = [
+	PERMISSION.CATALOG_READ,
+	PERMISSION.INGESTION_READ,
+	PERMISSION.PILOT_READ,
+	PERMISSION.REPORT_READ,
+];
+
+export const ROLE_PERMISSIONS: Record<TRole, readonly TPermission[]> = {
+	[ROLE.SUPERADMIN]: ALL_PERMISSIONS,
+	[ROLE.ADMIN]: OPERATIONS,
+	[ROLE.ANALYST]: ANALYST_PERMISSIONS,
+	[ROLE.VIEWER]: VIEWER_PERMISSIONS,
+};
+
+export const permissionsForRole = (role: TRole): readonly TPermission[] =>
+	ROLE_PERMISSIONS[role] ?? [];

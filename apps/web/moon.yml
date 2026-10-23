@@ -1,0 +1,42 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'web'
+layer: 'application'
+language: 'typescript'
+stack: 'frontend'
+
+dependsOn:
+  - 'api'
+
+tasks:
+  dev:
+    command: 'pnpm dev'
+    options:
+      persistent: true
+      runInCI: false
+
+  build:
+    command: 'pnpm build'
+    inputs:
+      - 'src/**/*'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/package.json'
+    outputs:
+      - 'dist'
+
+  preview:
+    command: 'pnpm preview'
+    options:
+      persistent: true
+      runInCI: false
+
+  test:
+    command: 'pnpm test'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/package.json'

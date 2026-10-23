@@ -1,0 +1,69 @@
+{
+	"name": "@app/api",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/bootstrap/index.ts"
+	},
+	"imports": {
+		"#/*": "./src/*"
+	},
+	"scripts": {
+		"dev": "tsx watch --env-file-if-exists=.env src/main.ts",
+		"start": "tsx --env-file-if-exists=.env src/main.ts",
+		"worker": "tsx --env-file-if-exists=.env src/worker/run.ts",
+		"migrate": "tsx --env-file-if-exists=.env src/scripts/migrate.ts",
+		"arch": "tsx scripts/check-architecture.ts",
+		"migrations": "tsx scripts/check-migrations.ts",
+		"build": "tsc --noEmit",
+		"test": "vitest run",
+		"db:generate": "drizzle-kit generate",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "tsx --env-file-if-exists=.env src/scripts/seed.ts"
+	},
+	"dependencies": {
+		"@app/activity": "workspace:*",
+		"@app/cache": "workspace:*",
+		"@app/logger": "workspace:*",
+		"@app/mail": "workspace:*",
+		"@app/messages": "workspace:*",
+		"@app/metrics": "workspace:*",
+		"@app/migrations": "workspace:*",
+		"@app/permissions": "workspace:*",
+		"@app/queue": "workspace:*",
+		"@app/schemas": "workspace:*",
+		"@app/tracing": "workspace:*",
+		"@app/version": "workspace:*",
+		"@hono/node-server": "^2.1.1",
+		"@mobily/ts-belt": "catalog:",
+		"@neondatabase/serverless": "catalog:",
+		"@orpc/json-schema": "^1.15.3",
+		"@orpc/openapi": "^1.15.3",
+		"@orpc/server": "^1.15.3",
+		"@orpc/zod": "^1.15.3",
+		"@upstash/redis": "catalog:",
+		"amqplib": "catalog:",
+		"better-auth": "catalog:",
+		"drizzle-orm": "catalog:",
+		"effect": "4.0.0-rc.115",
+		"hono": "^4.13.8",
+		"ioredis": "^6.0.0",
+		"pg": "catalog:",
+		"ts-pattern": "catalog:",
+		"ws": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@electric-sql/pglite": "^0.5.8",
+		"@types/pg": "catalog:",
+		"@types/ws": "catalog:",
+		"dotenv": "^17.3.1",
+		"drizzle-kit": "catalog:",
+		"tsx": "^4.21.0",
+		"typescript": "catalog:",
+		"vite-tsconfig-paths": "catalog:",
+		"vitest": "catalog:"
+	}
+}

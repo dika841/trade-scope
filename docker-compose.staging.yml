@@ -1,0 +1,82 @@
+name: standard-staging
+
+services:
+  api:
+    image: ${STANDARD_IMAGE:-standard:latest}
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      WEB_DIST_PATH: /app/apps/web/dist
+      WEB_ORIGIN: ${WEB_ORIGIN}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      DATABASE_DRIVER: ${DATABASE_DRIVER:-neon}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_DRIVER: ${REDIS_DRIVER:-upstash}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN}
+      RABBITMQ_URL: amqp://app:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      SMTP_URL: ${SMTP_URL}
+      MAIL_FROM: ${MAIL_FROM}
+      ACTIVITY_RETENTION_DAYS: ${ACTIVITY_RETENTION_DAYS:-90}
+      RATE_LIMIT_TRUSTED_PROXY_IPS: ${RATE_LIMIT_TRUSTED_PROXY_IPS}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_TRANSPORT_TARGET: ${LOG_TRANSPORT_TARGET}
+      LOG_TRANSPORT_OPTIONS: ${LOG_TRANSPORT_OPTIONS}
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+      METRICS_TOKEN: ${METRICS_TOKEN}
+      TRACING_ENDPOINT: ${TRACING_ENDPOINT}
+      TRACING_HEADERS: ${TRACING_HEADERS}
+      TRACING_SAMPLE_RATIO: ${TRACING_SAMPLE_RATIO:-1}
+    ports:
+      - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  worker:
+    image: ${STANDARD_IMAGE:-standard:latest}
+    restart: unless-stopped
+    stop_grace_period: 30s
+    command: ["pnpm", "--filter", "@app/api", "worker"]
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      DATABASE_DRIVER: ${DATABASE_DRIVER:-neon}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_DRIVER: ${REDIS_DRIVER:-upstash}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN}
+      RABBITMQ_URL: amqp://app:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      SMTP_URL: ${SMTP_URL}
+      MAIL_FROM: ${MAIL_FROM}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      WEB_ORIGIN: ${WEB_ORIGIN}
+      ACTIVITY_RETENTION_DAYS: ${ACTIVITY_RETENTION_DAYS:-90}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      METRICS_ENABLED: "false"
+
+  rabbitmq:
+    image: rabbitmq:4-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: app
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - standard-staging-rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  standard-staging-rabbitmq:

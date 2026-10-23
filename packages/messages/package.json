@@ -1,0 +1,21 @@
+{
+	"name": "@app/messages",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	},
+	"dependencies": {
+		"@app/activity": "workspace:*",
+		"@app/permissions": "workspace:*"
+	}
+}

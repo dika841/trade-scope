@@ -1,0 +1,33 @@
+$schema: 'https://moonrepo.dev/schemas/tasks.json'
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+    - 'scripts/**/*'
+  configs:
+    - '*.{js,json,ts,yml}'
+
+tasks:
+  check:
+    command: 'pnpm exec biome check'
+    inputs:
+      - '@group(sources)'
+      - '@group(configs)'
+    options:
+      runInCI: true
+
+  lint:
+    command: 'pnpm exec biome lint'
+    inputs:
+      - '@group(sources)'
+      - '@group(configs)'
+    options:
+      runInCI: true
+
+  format:
+    command: 'pnpm exec biome format --write'
+    inputs:
+      - '@group(sources)'
+      - '@group(configs)'
+    options:
+      runInCI: false

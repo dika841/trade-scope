@@ -1,0 +1,31 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'web-e2e'
+layer: 'automation'
+language: 'typescript'
+stack: 'frontend'
+
+dependsOn:
+  - 'api'
+  - 'web'
+
+fileGroups:
+  sources:
+    - 'tests/**/*'
+    - 'support/**/*'
+
+tasks:
+  e2e:
+    command: 'pnpm e2e'
+
+  install-browsers:
+    command: 'pnpm install-browsers'
+    options:
+      cache: false
+
+  typecheck:
+    command: 'pnpm typecheck'
+    inputs:
+      - '@group(sources)'
+      - 'tsconfig.json'
+      - 'package.json'

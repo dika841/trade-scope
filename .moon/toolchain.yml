@@ -1,0 +1,10 @@
+$schema: 'https://moonrepo.dev/schemas/toolchain.json'
+
+node:
+  version: '24.16.0'
+  packageManager: 'pnpm'
+  pnpm:
+    version: '11.6.0'
+  addEnginesConstraint: false
+  dedupeOnLockfileChange: false
+  syncProjectWorkspaceDependencies: true

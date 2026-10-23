@@ -1,0 +1,23 @@
+{
+	"name": "@app/schemas",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@app/activity": "workspace:*",
+		"@app/messages": "workspace:*",
+		"@app/permissions": "workspace:*",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

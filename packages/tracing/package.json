@@ -1,0 +1,27 @@
+{
+	"name": "@app/tracing",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@opentelemetry/api": "^1.9.0",
+		"@opentelemetry/core": "^2.1.0",
+		"@opentelemetry/exporter-trace-otlp-http": "^0.222.0",
+		"@opentelemetry/resources": "^2.1.0",
+		"@opentelemetry/sdk-trace-base": "^2.1.0",
+		"@opentelemetry/sdk-trace-node": "^2.1.0",
+		"@opentelemetry/semantic-conventions": "^1.38.0",
+		"ts-pattern": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

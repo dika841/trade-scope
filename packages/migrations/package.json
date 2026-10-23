@@ -1,0 +1,23 @@
+{
+	"name": "@app/migrations",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"build": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@app/logger": "workspace:*",
+		"drizzle-orm": "catalog:",
+		"pg": "catalog:"
+	},
+	"devDependencies": {
+		"@types/pg": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

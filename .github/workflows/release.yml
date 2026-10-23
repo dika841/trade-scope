@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Decide whether this version is already released
+        id: version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "v${VERSION} is already tagged, nothing to release"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "v${VERSION} has no tag yet, releasing"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for CI to be green on this commit
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          REQUIRED=("Check, test, build (affected)" "E2E (api + web)" "Drizzle schema drift check")
+          for attempt in $(seq 1 40); do
+            RUNS="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs" -q '[.check_runs[] | {name, conclusion}]')"
+            FAILED="$(printf '%s' "$RUNS" | jq -r '[.[] | select(.name != "Release") | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped")] | length')"
+            if [ "$FAILED" != "0" ]; then
+              echo "::error::a CI check on ${GITHUB_SHA} did not succeed: release only from green main"
+              printf '%s\n' "$RUNS"
+              exit 1
+            fi
+            MISSING=0
+            for name in "${REQUIRED[@]}"; do
+              printf '%s' "$RUNS" | jq -e --arg n "$name" 'any(.[]; .name == $n and .conclusion == "success")' >/dev/null || MISSING=1
+            done
+            if [ "$MISSING" = "0" ]; then
+              echo "all required checks are green on ${GITHUB_SHA}"
+              exit 0
+            fi
+            echo "waiting for CI on ${GITHUB_SHA} (attempt $attempt/40)"
+            sleep 30
+          done
+          echo "::error::CI did not finish on ${GITHUB_SHA} within 20 minutes"
+          exit 1
+
+      - name: Tag the commit
+        if: steps.version.outputs.release == 'true'
+        env:
+          TAG: v${{ steps.version.outputs.version }}
+        run: |
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "$TAG"
+
+      - name: Build release notes from the merged pull requests
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.version.outputs.version }}
+        run: |
+          PREV="$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)"
+          RANGE="${PREV:+${PREV}..}${TAG}"
+          .github/scripts/release-notes.sh "$RANGE" "$PREV" "$TAG" > release-notes.md
+          cat release-notes.md
+
+      - name: Publish
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.version.outputs.version }}
+        run: gh release create "$TAG" --title "Standard $TAG" --notes-file release-notes.md --latest

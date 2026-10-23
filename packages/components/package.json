@@ -1,0 +1,46 @@
+{
+	"name": "@app/components",
+	"version": "0.8.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./guard/guard": "./src/guard/guard.tsx",
+		"./guard/permissions-provider": "./src/guard/permissions-provider.tsx",
+		"./guard/use-permissions": "./src/guard/use-permissions.ts",
+		"./hooks/use-mobile": "./src/hooks/use-mobile.ts",
+		"./lib/utils": "./src/lib/utils.ts",
+		"./theme.css": "./theme.css",
+		"./ui/*": "./src/ui/*.tsx"
+	},
+	"scripts": {
+		"build": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@app/messages": "workspace:*",
+		"@app/permissions": "workspace:*",
+		"@tanstack/react-store": "catalog:",
+		"@tanstack/store": "catalog:",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"lucide-react": "catalog:",
+		"radix-ui": "^1.6.7",
+		"tailwind-merge": "^3.7.0",
+		"ts-pattern": "catalog:"
+	},
+	"peerDependencies": {
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"devDependencies": {
+		"@testing-library/dom": "catalog:",
+		"@testing-library/react": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"jsdom": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

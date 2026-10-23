@@ -1,0 +1,82 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+id: 'api'
+layer: 'application'
+language: 'typescript'
+stack: 'backend'
+
+tasks:
+  dev:
+    command: 'pnpm dev'
+    options:
+      persistent: true
+      runInCI: false
+
+  start:
+    command: 'pnpm start'
+    options:
+      persistent: true
+      runInCI: false
+
+  worker:
+    command: 'pnpm worker'
+    options:
+      persistent: true
+      runInCI: false
+
+  migrate:
+    command: 'pnpm migrate'
+    options:
+      runInCI: false
+
+  arch:
+    command: 'pnpm arch'
+    inputs:
+      - 'src/**/*'
+      - 'scripts/**/*'
+
+  migrations:
+    command: 'pnpm migrations'
+    inputs:
+      - 'drizzle/**/*.sql'
+      - 'scripts/**/*'
+
+  build:
+    command: 'pnpm build'
+    deps:
+      - '~:arch'
+      - '~:migrations'
+    inputs:
+      - 'src/**/*'
+      - 'scripts/**/*'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/package.json'
+
+  test:
+    command: 'pnpm test'
+    inputs:
+      - 'src/**/*'
+      - 'scripts/**/*'
+      - 'tsconfig.json'
+      - 'package.json'
+      - '/package.json'
+
+  db-generate:
+    command: 'pnpm db:generate'
+
+  db-push:
+    command: 'pnpm db:push'
+    options:
+      runInCI: false
+
+  db-studio:
+    command: 'pnpm db:studio'
+    options:
+      runInCI: false
+      persistent: true
+
+  db-seed:
+    command: 'pnpm db:seed'
+    options:
+      runInCI: false
