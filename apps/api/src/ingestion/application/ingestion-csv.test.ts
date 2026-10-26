@@ -10,7 +10,7 @@ const FULL_HEADER =
 describe("ingestionCsvParse", () => {
 	it("parses required and optional columns, aliases and quoted commas", (): void => {
 		const parsed = ingestionCsvParse(
-			`${FULL_HEADER}090121,HS2022,"Coffee, roasted",0901,6,kopi sangrai|roasted coffee,id,2022-01-01,\n`,
+			`${FULL_HEADER}090121,HS2022,"Coffee, roasted",0901,6,roasted coffee|ground coffee,en,2022-01-01,\n`,
 		);
 
 		expect(parsed.totalRows).toBe(1);
@@ -21,18 +21,18 @@ describe("ingestionCsvParse", () => {
 			description: "Coffee, roasted",
 			parentHsCode: "0901",
 			level: 6,
-			aliases: ["kopi sangrai", "roasted coffee"],
-			language: "id",
+			aliases: ["roasted coffee", "ground coffee"],
+			language: "en",
 			validFrom: "2022-01-01",
 			validTo: null,
 		});
 	});
 
-	it("defaults the level to the code length and the language to Indonesian", (): void => {
+	it("defaults the level to the code length and the language to English", (): void => {
 		const parsed = ingestionCsvParse(`${HEADER}0901,HS2022,Coffee\n`);
 
 		expect(parsed.products[0]?.level).toBe(4);
-		expect(parsed.products[0]?.language).toBe("id");
+		expect(parsed.products[0]?.language).toBe("en");
 		expect(parsed.products[0]?.aliases).toEqual([]);
 	});
 

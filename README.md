@@ -1,4 +1,4 @@
-# Standard
+# TradeScope
 
 Full-stack TypeScript boilerplate: moon + pnpm workspaces, Hono + oRPC, Drizzle, better-auth, React 19 + TanStack + Vite + Tailwind v4, Biome, Vitest, Playwright.
 
@@ -83,10 +83,10 @@ The first public slice is an HS catalog search. It works without a session:
 
 | Surface | What it does |
 |---|---|
-| `GET /api/products?q=kopi&limit=10` | Finds candidates by HS code prefix, description, or Indonesian/English alias |
+| `GET /api/products?q=coffee&limit=10` | Finds candidates by HS code prefix, description, or English alias |
 | `GET /api/products/{hsCode}?revision=HS2022` | Returns the confirmed product and its aliases |
 | `/` | Public landing page with search |
-| `/search?q=kopi` | Candidate list with an ambiguity warning |
+| `/search?q=coffee` | Candidate list with an ambiguity warning |
 | `/products/090121?revision=HS2022` | Product detail and the next-step placeholder |
 
 `make db-seed` seeds six HS codes across coffee, apparel, smartphones, palm oil, and computers, plus six countries. The seed is demo data; the import below is the real write path.
@@ -117,7 +117,7 @@ CSV columns:
 | `parent_hs_code` | no | Same format as `hs_code` |
 | `level` | no | 1-10; defaults to the digit length of the code |
 | `aliases` | no | Up to 20, separated by `|` or `;` |
-| `language` | no | Two lowercase letters, `id` by default |
+| `language` | no | Two lowercase letters, `en` by default |
 | `valid_from`, `valid_to` | no | `YYYY-MM-DD` |
 
 Files are capped at 2 MB and 20,000 rows. A data source token is encrypted with AES-256-GCM at rest and only its last four characters are ever returned; the token is sent as a bearer credential only when the worker fetches the source. Set `DATA_SOURCE_SECRET_KEY` (32 characters or more, shared by the api and the worker) to keep token encryption independent of the auth secret. Endpoints that resolve to a private, loopback, or link-local address are refused before any request is made, and redirects are disabled. The full format and failure behaviour are in [docs/ingestion.md](docs/ingestion.md).

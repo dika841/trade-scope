@@ -1,0 +1,1 @@
+ALTER TABLE "hs_alias" ALTER COLUMN "language" SET DEFAULT 'en';

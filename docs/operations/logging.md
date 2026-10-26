@@ -14,7 +14,7 @@ So the collector is the platform's job. A Docker log driver, a Kubernetes agent,
 
 ```sh
 LOG_TRANSPORT_TARGET=pino-loki
-LOG_TRANSPORT_OPTIONS={"host":"http://loki:3100","labels":{"app":"standard"}}
+LOG_TRANSPORT_OPTIONS={"host":"http://loki:3100","labels":{"app":"trade-scope"}}
 ```
 
 Neither variable is set by default, so the default path stays stdout. Outside production the default is `pino-pretty`, and setting a target overrides that too, which is how you test a shipping setup locally.

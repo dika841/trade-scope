@@ -53,10 +53,10 @@ db-studio: ## Open drizzle studio
 	moon run api:db-studio
 
 image: ## Build the production container image
-	docker build -t standard:$(shell node -p "require('./package.json').version") -t standard:latest .
+	docker build -t trade-scope:$(shell node -p "require('./package.json').version") -t trade-scope:latest .
 
 image-run: ## Run the production image against the local services
-	docker run --rm -p 3001:3001 --env-file apps/api/.env standard:latest
+	docker run --rm -p 3001:3001 --env-file apps/api/.env trade-scope:latest
 
 staging-up: ## Start the staging stack from .env.staging
 	docker compose -f docker-compose.staging.yml --env-file .env.staging up -d

@@ -1,6 +1,6 @@
 export const MAIL_MESSAGE = {
 	GREETING: "Hi",
-	SIGNATURE: "- Standard",
+	SIGNATURE: "- TradeScope",
 	PASSWORD_RESET_SUBJECT: "Reset your password",
 	PASSWORD_RESET_BODY:
 		"Someone asked to reset the password for your account. Use the link below to choose a new one.",

@@ -63,7 +63,7 @@ export const hsAlias = pgTable(
 		hsProductId: uuid("hs_product_id")
 			.notNull()
 			.references(() => hsProduct.id, { onDelete: "cascade" }),
-		language: text("language").notNull().default("id"),
+		language: text("language").notNull().default("en"),
 		source: text("source").notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()

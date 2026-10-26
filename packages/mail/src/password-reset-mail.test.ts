@@ -5,7 +5,7 @@ import { passwordResetMailBuild } from "./password-reset-mail.ts";
 const INPUT = {
 	to: "analyst@test.app",
 	name: "Analyst",
-	url: "https://standard.test/reset-password?token=abc123",
+	url: "https://trade-scope.test/reset-password?token=abc123",
 };
 
 describe("passwordResetMailBuild", () => {

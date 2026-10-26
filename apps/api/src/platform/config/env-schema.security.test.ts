@@ -6,11 +6,11 @@ import {
 
 const ENV = {
 	BETTER_AUTH_SECRET: "a-32-character-production-secret!",
-	BETTER_AUTH_URL: "https://api.standard.test",
+	BETTER_AUTH_URL: "https://api.trade-scope.test",
 	DATABASE_URL: "postgres://app:app@localhost:5432/app",
 	RABBITMQ_URL: "amqp://app:app@localhost:5672",
 	REDIS_URL: "redis://localhost:6379",
-	WEB_ORIGIN: "https://standard.test",
+	WEB_ORIGIN: "https://trade-scope.test",
 } as const;
 
 const METRICS_TOKEN = "a-32-character-metrics-scrape-tok";
@@ -27,7 +27,7 @@ describe("envSchema security", () => {
 			envSchema.safeParse({
 				...ENV,
 				NODE_ENV: "production",
-				WEB_ORIGIN: "http://standard.test",
+				WEB_ORIGIN: "http://trade-scope.test",
 			}).success,
 		).toBe(false);
 	});
@@ -37,7 +37,7 @@ describe("envSchema security", () => {
 			envSchema.safeParse({
 				...ENV,
 				NODE_ENV: "production",
-				BETTER_AUTH_URL: "http://api.standard.test",
+				BETTER_AUTH_URL: "http://api.trade-scope.test",
 			}).success,
 		).toBe(false);
 	});

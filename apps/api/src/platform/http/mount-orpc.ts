@@ -12,7 +12,7 @@ import { APP_VERSION } from "@app/version";
 import { ROUTE_PREFIX } from "#/platform/http/route-paths.ts";
 import type { TAppRouter } from "#/bootstrap/router.ts";
 
-const API_TITLE = "Standard API";
+const API_TITLE = "TradeScope API";
 
 type TLogger = { error: (data: Record<string, unknown>, msg: string) => void };
 

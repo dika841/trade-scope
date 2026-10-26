@@ -239,7 +239,7 @@ const rowDecode = (
 		return { ok: false, message: INGESTION_MESSAGE.INVALID_LEVEL };
 	}
 
-	const language = cellOf(row, columns, COLUMN.LANGUAGE).trim() || "id";
+	const language = cellOf(row, columns, COLUMN.LANGUAGE).trim() || "en";
 
 	if (!LANGUAGE_PATTERN.test(language)) {
 		return { ok: false, message: INGESTION_MESSAGE.INVALID_LANGUAGE };

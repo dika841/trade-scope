@@ -1,8 +1,9 @@
-name: standard-staging
+name: trade-scope-staging
 
 services:
   api:
-    image: ${STANDARD_IMAGE:-standard:latest}
+    image: ${TRADE_SCOPE_IMAGE:-trade-scope:latest}
+    container_name: trade-scope-api
     restart: unless-stopped
     stop_grace_period: 30s
     depends_on:
@@ -42,7 +43,8 @@ services:
       retries: 6
 
   worker:
-    image: ${STANDARD_IMAGE:-standard:latest}
+    image: ${TRADE_SCOPE_IMAGE:-trade-scope:latest}
+    container_name: trade-scope-worker
     restart: unless-stopped
     stop_grace_period: 30s
     command: ["pnpm", "--filter", "@app/api", "worker"]
@@ -68,12 +70,13 @@ services:
 
   rabbitmq:
     image: rabbitmq:4-alpine
+    container_name: trade-scope-rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: app
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     volumes:
-      - standard-staging-rabbitmq:/var/lib/rabbitmq
+      - trade-scope-staging-rabbitmq:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -81,4 +84,4 @@ services:
       retries: 10
 
 volumes:
-  standard-staging-rabbitmq:
+  trade-scope-staging-rabbitmq:

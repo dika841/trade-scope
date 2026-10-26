@@ -26,35 +26,35 @@ const PRODUCTS = [
 		description: "Coffee, not roasted, not decaffeinated",
 		parentHsCode: "0901",
 		level: 6,
-		aliases: ["kopi", "kopi mentah", "green coffee", "coffee beans"],
+		aliases: ["green coffee", "coffee beans", "raw coffee"],
 	},
 	{
 		hsCode: "090121",
 		description: "Coffee, roasted, not decaffeinated",
 		parentHsCode: "0901",
 		level: 6,
-		aliases: ["kopi sangrai", "roasted coffee", "kopi bubuk"],
+		aliases: ["roasted coffee", "ground coffee", "coffee powder"],
 	},
 	{
 		hsCode: "610910",
 		description: "T-shirts, singlets and other vests, of cotton",
 		parentHsCode: "6109",
 		level: 6,
-		aliases: ["kaos", "t-shirt", "tshirt", "baju kaos"],
+		aliases: ["t-shirt", "tshirt", "tee", "cotton shirt"],
 	},
 	{
 		hsCode: "851713",
 		description: "Smartphones",
 		parentHsCode: "8517",
 		level: 6,
-		aliases: ["smartphone", "ponsel", "hp", "telepon seluler"],
+		aliases: ["smartphone", "mobile phone", "cell phone"],
 	},
 	{
 		hsCode: "151110",
 		description: "Crude palm oil",
 		parentHsCode: "1511",
 		level: 6,
-		aliases: ["cpo", "minyak sawit", "crude palm oil"],
+		aliases: ["cpo", "palm oil", "crude palm oil"],
 	},
 	{
 		hsCode: "847130",
@@ -62,7 +62,7 @@ const PRODUCTS = [
 			"Portable automatic data processing machines, weighing not more than 10 kg",
 		parentHsCode: "8471",
 		level: 6,
-		aliases: ["laptop", "notebook", "komputer portabel"],
+		aliases: ["laptop", "notebook", "portable computer"],
 	},
 ] as const;
 
@@ -121,7 +121,7 @@ export const catalogSeed = Effect.fn("catalogSeed")(
 						.values({
 							alias,
 							hsProductId: product.id,
-							language: "id",
+							language: "en",
 							source: SOURCE,
 						})
 						.onConflictDoNothing({

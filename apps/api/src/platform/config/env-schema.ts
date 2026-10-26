@@ -125,7 +125,10 @@ export const envSchema = z
 		),
 		RABBITMQ_URL: z.string().min(1),
 		SMTP_URL: z.string().min(1).default("smtp://localhost:1025"),
-		MAIL_FROM: z.string().min(1).default("Standard <no-reply@standard.test>"),
+		MAIL_FROM: z
+			.string()
+			.min(1)
+			.default("TradeScope <no-reply@trade-scope.test>"),
 		BETTER_AUTH_URL: z.url(),
 		BETTER_AUTH_SECRET: z.string().min(32),
 		DATA_SOURCE_SECRET_KEY: z.preprocess(

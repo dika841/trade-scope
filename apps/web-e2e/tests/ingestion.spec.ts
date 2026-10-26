@@ -15,8 +15,8 @@ const SOURCE_TOKEN = "web-e2e-token-1234";
 const RUN_STATUS_TIMEOUT_MS = 25_000;
 const NEW_HS_CODE = "990001";
 const CSV = `hs_code,hs_revision,description,aliases,language
-${NEW_HS_CODE},HS2022,Web E2E imported product,produk web e2e,id
-bad-code,HS2022,Rejected row,,id
+${NEW_HS_CODE},HS2022,Web E2E imported product,web e2e product,en
+bad-code,HS2022,Rejected row,,en
 `;
 
 test.describe.configure({ mode: "serial" });

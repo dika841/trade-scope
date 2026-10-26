@@ -24,7 +24,7 @@ const env = {
 	NODE_ENV: "test",
 	PORT: String(API_PORT),
 	DATABASE_URL,
-	REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6379",
+	REDIS_URL: process.env.REDIS_URL ?? "redis://localhost:6380",
 	RABBITMQ_URL: process.env.RABBITMQ_URL ?? "amqp://app:app@localhost:5672",
 	RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX ?? "10000",
 	BETTER_AUTH_URL: API_URL,

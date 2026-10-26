@@ -3,10 +3,9 @@ export const CATALOG_MESSAGE = {
 	LANDING_TITLE: "Find the markets worth researching next.",
 	LANDING_SUBTITLE:
 		"Search a product by name or HS code, confirm the classification, and compare importer demand. Every number keeps its source and period.",
-	LANDING_HINT: "Start with “kopi”, “kaos”, or an HS code such as 0901.",
+	LANDING_HINT: "Start with “coffee”, “t-shirt”, or an HS code such as 0901.",
 	LANDING_STEP_ONE_TITLE: "Search",
-	LANDING_STEP_ONE_BODY:
-		"Enter a product name, an Indonesian alias, or an HS code.",
+	LANDING_STEP_ONE_BODY: "Enter a product name, a common term, or an HS code.",
 	LANDING_STEP_TWO_TITLE: "Confirm",
 	LANDING_STEP_TWO_BODY:
 		"Choose the HS code whose description matches what you actually sell.",
@@ -15,9 +14,9 @@ export const CATALOG_MESSAGE = {
 		"Market demand ranking and provenance arrive in the next sprint.",
 	TITLE: "Find a product",
 	SUBTITLE:
-		"Search by product name, HS code, or a common Indonesian term. Confirm the HS code before using an analysis.",
+		"Search by product name, HS code, or a common term. Confirm the HS code before using an analysis.",
 	SEARCH_LABEL: "Product or HS code",
-	SEARCH_PLACEHOLDER: "Try “kopi”, “kaos”, or “0901”",
+	SEARCH_PLACEHOLDER: "Try “coffee”, “t-shirt”, or “0901”",
 	SEARCH_ACTION: "Search",
 	SEARCHING: "Searching…",
 	SEARCH_HINT: "Enter at least 2 characters to search.",

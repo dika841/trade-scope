@@ -88,4 +88,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: v${{ steps.version.outputs.version }}
-        run: gh release create "$TAG" --title "Standard $TAG" --notes-file release-notes.md --latest
+        run: gh release create "$TAG" --title "TradeScope $TAG" --notes-file release-notes.md --latest

@@ -23,9 +23,9 @@ const STATUS_NOT_FOUND = 404;
 const STATUS_CONFLICT = 409;
 
 const CSV_TEMPLATE = `hs_code,hs_revision,description,parent_hs_code,level,aliases,language
-090121,HS2022,"Coffee, roasted, not decaffeinated",0901,6,kopi sangrai,id
-${NEW_HS_CODE},HS2022,E2E imported product,9999,6,produk e2e,id
-bad-code,HS2022,Bad row,,6,,id
+090121,HS2022,"Coffee, roasted, not decaffeinated",0901,6,roasted coffee,en
+${NEW_HS_CODE},HS2022,E2E imported product,9999,6,e2e product,en
+bad-code,HS2022,Bad row,,6,,en
 `;
 
 let adminCookie = "";
@@ -163,7 +163,7 @@ describe("ingestion through the worker", () => {
 		const product = await apiJson<{ aliases: readonly string[] }>({
 			path: `/products/${NEW_HS_CODE}?revision=HS2022`,
 		});
-		expect(product.aliases).toContain("produk e2e");
+		expect(product.aliases).toContain("e2e product");
 	});
 
 	it("queues a new run when a finished run is retried", async (): Promise<void> => {

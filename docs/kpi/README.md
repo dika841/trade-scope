@@ -2,12 +2,12 @@
 
 The engineering standards this matrix tracks are a **spec-review rubric**, not measured KPIs: they list what every Engineering Spec and every build must already answer. This document splits the rubric into 37 checkable standards, adds 16 the rubric never asks for but this boilerplate already ships, ranks all 53 P0–P3, and records where this repository stands on each.
 
-> **Catatan pemangkasan (23 Oktober 2026):** repo ini disesuaikan untuk TradeScope.
-> Paket `@app/grpc` dan `@app/storage` sudah dihapus, sisa domain `note`
-> dibersihkan, branch utama diselaraskan ke `main`, dan runtime database/cache
-> memakai Neon serverless + Upstash Redis (driver node-postgres/ioredis tetap
-> tersedia untuk local dan CI). Baris matriks yang masih menyebut storage, gRPC,
-> atau notes adalah catatan historis dan tidak lagi menggambarkan repo ini.
+> **Scope note (23 October 2026):** this repository is adapted for TradeScope.
+> The `@app/grpc` and `@app/storage` packages were removed, the leftover `note`
+> domain was deleted, the main branch was aligned to `main`, and the database/cache
+> runtime uses Neon serverless + Upstash Redis (the node-postgres/ioredis drivers
+> remain available for local and CI). Matrix rows that still mention storage, gRPC,
+> or notes are historical notes and no longer describe this repository.
 
 ## How to read this
 

@@ -7,12 +7,12 @@ const HTTP_NOT_FOUND = 404;
 const HTTP_BAD_REQUEST = 400;
 
 describe("catalog public endpoints", () => {
-	it("finds products by an Indonesian alias without a session", async (): Promise<void> => {
+	it("finds products by an English alias without a session", async (): Promise<void> => {
 		const result = await apiJson<TCatalogSearchResult>({
-			path: "/products?q=kopi&limit=10",
+			path: "/products?q=coffee&limit=10",
 		});
 
-		expect(result.query).toBe("kopi");
+		expect(result.query).toBe("coffee");
 		expect(result.items.length).toBeGreaterThan(0);
 		expect(result.ambiguous).toBe(true);
 		expect(
@@ -37,7 +37,7 @@ describe("catalog public endpoints", () => {
 
 		expect(product.hsCode).toBe("090121");
 		expect(product.hsRevision).toBe("HS2022");
-		expect(product.aliases).toEqual(expect.arrayContaining(["kopi sangrai"]));
+		expect(product.aliases).toEqual(expect.arrayContaining(["roasted coffee"]));
 	});
 
 	it("rejects a query shorter than two characters", async (): Promise<void> => {
