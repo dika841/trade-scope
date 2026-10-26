@@ -1,6 +1,5 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { execSync } from "node:child_process";
-import { match, P } from "ts-pattern";
 
 import {
 	ADMIN_DATABASE_URL,
@@ -10,8 +9,14 @@ import {
 } from "./services.ts";
 
 const HEALTH_URL = `http://127.0.0.1:${API_PORT}/healthz`;
+const REPO_ROOT = new URL("../../..", import.meta.url).pathname;
+const PSQL_AVAILABLE = spawnSync("psql", ["--version"]).status === 0;
+const DOCKER_PSQL =
+	"docker compose -f docker-compose.dev.yml exec -T postgres psql -U app -d postgres";
 
 let apiProcess: ChildProcess | undefined;
+let workerProcess: ChildProcess | undefined;
+const WORKER_START_MS = 1_000;
 
 const waitForHealth = async (timeoutMs = 15_000): Promise<void> => {
 	const deadline = Date.now() + timeoutMs;
@@ -29,41 +34,74 @@ const waitForHealth = async (timeoutMs = 15_000): Promise<void> => {
 
 const env = apiEnv({});
 
+const databaseReset = (databaseName: string): void => {
+	const statement = `DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`;
+	const create = `CREATE DATABASE ${databaseName}`;
+
+	if (PSQL_AVAILABLE) {
+		execSync(`psql "${ADMIN_DATABASE_URL}" -c "${statement}" -c "${create}"`, {
+			stdio: "ignore",
+		});
+		return;
+	}
+
+	execSync(
+		`${DOCKER_PSQL} -c "${statement}" -c "${create}"`,
+		{ cwd: REPO_ROOT, stdio: "ignore" },
+	);
+};
+
 export const setup = async (): Promise<void> => {
 	const dbName = new URL(E2E_DATABASE_URL).pathname.slice(1);
-	execSync(
-		`psql "${ADMIN_DATABASE_URL}" -c "DROP DATABASE IF EXISTS ${dbName}" -c "CREATE DATABASE ${dbName}"`,
-		{ stdio: "ignore" },
-	);
+	databaseReset(dbName);
 
 	execSync("pnpm --filter @app/api run migrate", {
-		cwd: new URL("../../..", import.meta.url).pathname,
+		cwd: REPO_ROOT,
 		env,
 		stdio: "inherit",
 	});
 
 	execSync("pnpm --filter @app/api run db:seed", {
-		cwd: new URL("../../..", import.meta.url).pathname,
+		cwd: REPO_ROOT,
 		env,
 		stdio: "inherit",
 	});
 
-	apiProcess = spawn("pnpm", ["--filter", "@app/api", "exec", "tsx", "src/main.ts"], {
-		cwd: new URL("../../..", import.meta.url).pathname,
-		env,
-		stdio: "inherit",
-		detached: true,
-	});
+	apiProcess = spawn(
+		"pnpm",
+		["--filter", "@app/api", "exec", "tsx", "src/main.ts"],
+		{
+			cwd: REPO_ROOT,
+			env,
+			stdio: "inherit",
+			detached: true,
+		},
+	);
 
 	await waitForHealth();
+
+	workerProcess = spawn(
+		"pnpm",
+		["--filter", "@app/api", "exec", "tsx", "src/worker/run.ts"],
+		{
+			cwd: REPO_ROOT,
+			env,
+			stdio: "inherit",
+			detached: true,
+		},
+	);
+
+	await new Promise((resolve) => setTimeout(resolve, WORKER_START_MS));
 };
 
 export const teardown = (): void => {
-	match(apiProcess?.pid)
-		.with(P.nullish, () => undefined)
-		.otherwise((pid) => {
-			try {
-				process.kill(-pid);
-			} catch {}
-		});
+	for (const pid of [workerProcess?.pid, apiProcess?.pid]) {
+		if (pid === undefined) {
+			continue;
+		}
+
+		try {
+			process.kill(-pid);
+		} catch {}
+	}
 };

@@ -2,7 +2,9 @@ import { Layer, ManagedRuntime } from "effect";
 import { activityModule } from "#/activity/index.ts";
 import { authModule } from "#/auth/index.ts";
 import { catalogModule } from "#/catalog/index.ts";
+import { dataSourceModule } from "#/data-source/index.ts";
 import { healthModule } from "#/health/index.ts";
+import { ingestionModule } from "#/ingestion/index.ts";
 import { cacheServiceLayer } from "#/platform/cache/redis.ts";
 import { dbServiceLayer } from "#/platform/db/db-service.ts";
 import { mailServiceLayer } from "#/platform/mail/mailer.ts";
@@ -19,6 +21,8 @@ export const AppLayer = Layer.mergeAll(
 	activityModule.layer,
 	roleModule.layer,
 	catalogModule.layer,
+	dataSourceModule.layer,
+	ingestionModule.layer,
 	userModule.layer,
 	authModule.layer,
 );

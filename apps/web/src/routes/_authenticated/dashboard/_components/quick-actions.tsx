@@ -9,7 +9,7 @@ import { Guard } from "@app/components/guard/guard";
 import { DASHBOARD_MESSAGE } from "@app/messages";
 import { PERMISSION } from "@app/permissions";
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import type { FC, ReactElement } from "react";
 
 export const QuickActions: FC = (): ReactElement => (
@@ -25,6 +25,14 @@ export const QuickActions: FC = (): ReactElement => (
 					<Link to="/users/create">
 						<Plus className="size-4" />
 						{DASHBOARD_MESSAGE.CREATE_USER}
+					</Link>
+				</Button>
+			</Guard>
+			<Guard permissions={[PERMISSION.INGESTION_RUN]}>
+				<Button variant="outline" size="sm" className="justify-start" asChild>
+					<Link to="/ingestion">
+						<Upload className="size-4" />
+						{DASHBOARD_MESSAGE.NEW_INGESTION}
 					</Link>
 				</Button>
 			</Guard>

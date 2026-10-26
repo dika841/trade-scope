@@ -5,9 +5,11 @@ import type { LucideIcon } from "lucide-react";
 import {
 	Activity,
 	CircleUser,
+	Database,
 	KeyRound,
 	LayoutDashboard,
 	Shield,
+	Upload,
 	Users,
 } from "lucide-react";
 
@@ -24,6 +26,18 @@ export const NAV_ITEMS: readonly TNavItem[] = [
 		label: NAV_MESSAGE.DASHBOARD,
 		permissions: [],
 		icon: LayoutDashboard,
+	},
+	{
+		to: "/ingestion",
+		label: NAV_MESSAGE.INGESTION,
+		permissions: [PERMISSION.INGESTION_READ],
+		icon: Upload,
+	},
+	{
+		to: "/data-sources",
+		label: NAV_MESSAGE.DATA_SOURCES,
+		permissions: [PERMISSION.DATA_SOURCE_MANAGE],
+		icon: Database,
 	},
 	{
 		to: "/users",

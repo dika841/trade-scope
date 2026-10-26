@@ -128,6 +128,10 @@ export const envSchema = z
 		MAIL_FROM: z.string().min(1).default("Standard <no-reply@standard.test>"),
 		BETTER_AUTH_URL: z.url(),
 		BETTER_AUTH_SECRET: z.string().min(32),
+		DATA_SOURCE_SECRET_KEY: z.preprocess(
+			blankAsUndefined,
+			z.string().min(32).optional(),
+		),
 		SEED_PASSWORD: z.preprocess(
 			blankAsUndefined,
 			userCreateInputSchema.shape.password.optional(),

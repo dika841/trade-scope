@@ -1,17 +1,15 @@
 import type { TJobHandler } from "@app/queue";
-import { logger } from "#/platform/observability/logger.ts";
-
-export type TExampleJobPayload = {
-	subjectId: string;
-};
+import { runtime } from "#/bootstrap/compose.ts";
+import { ingestionProcess } from "#/ingestion/index.ts";
+import type { TIngestionJobPayload } from "#/ingestion/index.ts";
 
 /**
- * Placeholder handler for the queue wiring. Replace it with the first real job
- * (for example a trade-data ingestion part) before enabling the worker in
- * production.
+ * The API queues a run and the worker processes it. The handler resolves the
+ * run from the database, so a message still means the same thing after the API
+ * has restarted.
  */
-export const exampleJobProcess: TJobHandler<TExampleJobPayload> = async (
+export const ingestionJobProcess: TJobHandler<TIngestionJobPayload> = async (
 	payload,
 ): Promise<void> => {
-	logger.info({ subjectId: payload.subjectId }, "processing job");
+	await runtime.runPromise(ingestionProcess(payload.runId));
 };

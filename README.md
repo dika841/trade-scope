@@ -59,6 +59,7 @@ Or run them separately:
 ```sh
 make api                              # api on :3001
 make web                              # web on :5173
+make worker                           # RabbitMQ worker (needed for ingestion)
 ```
 
 Seed logins: `admin@test.app` / `Password123`, `analyst@test.app` / `Password123`, `viewer@test.app` / `Password123`. That password is the default outside production only. With `NODE_ENV=production` the seed refuses to run unless `SEED_PASSWORD` is set, and then it creates the admin alone, with that password and no demo users.
@@ -88,7 +89,38 @@ The first public slice is an HS catalog search. It works without a session:
 | `/search?q=kopi` | Candidate list with an ambiguity warning |
 | `/products/090121?revision=HS2022` | Product detail and the next-step placeholder |
 
-`make db-seed` seeds six HS codes across coffee, apparel, smartphones, palm oil, and computers, plus six countries. The seed is demo data; the real catalog import and provider ingestion land in later sprints.
+`make db-seed` seeds six HS codes across coffee, apparel, smartphones, palm oil, and computers, plus six countries. The seed is demo data; the import below is the real write path.
+
+## Ingestion and data sources
+
+Phase 2 adds the write side of the catalog. An ingestion run reads a CSV, validates every row, and upserts `hs_product` and `hs_alias` in one transaction. Rows that fail validation are reported with their line number and the run finishes as `partial`; a run with no valid rows finishes as `failed`.
+
+| Surface | What it does |
+|---|---|
+| `POST /api/ingestion` | Queues a run from an uploaded CSV (`mode: "upload"`) or a saved data source (`mode: "source"`) |
+| `GET /api/ingestion` | Lists runs with status, row counts, duration, and who triggered them |
+| `GET /api/ingestion/{id}` | Returns one run with the rejected rows |
+| `POST /api/ingestion/{id}/retry` | Queues a new run with the same input, linked by `retryOfId` |
+| `/ingestion` | Run form, status filter, and run history |
+| `/ingestion/{id}` | Summary, rejected rows, and retry |
+| `/data-sources` | Superadmin-only endpoint and token management |
+
+The API only queues the run; the **worker** performs it, so `make worker` has to be running for a run to leave `queued`. The worker claims a run through Redis, updates it to `running`, and records the result even when the source is unreachable. The two contracts share `@app/schemas`, so the web and API cannot drift.
+
+CSV columns:
+
+| Column | Required | Notes |
+|---|---|---|
+| `hs_code` | yes | 2-12 digits, dots allowed and stripped |
+| `hs_revision` | yes | For example `HS2022` |
+| `description` | yes | 1-500 characters |
+| `parent_hs_code` | no | Same format as `hs_code` |
+| `level` | no | 1-10; defaults to the digit length of the code |
+| `aliases` | no | Up to 20, separated by `|` or `;` |
+| `language` | no | Two lowercase letters, `id` by default |
+| `valid_from`, `valid_to` | no | `YYYY-MM-DD` |
+
+Files are capped at 2 MB and 20,000 rows. A data source token is encrypted with AES-256-GCM at rest and only its last four characters are ever returned; the token is sent as a bearer credential only when the worker fetches the source. Set `DATA_SOURCE_SECRET_KEY` (32 characters or more, shared by the api and the worker) to keep token encryption independent of the auth secret. Endpoints that resolve to a private, loopback, or link-local address are refused before any request is made, and redirects are disabled. The full format and failure behaviour are in [docs/ingestion.md](docs/ingestion.md).
 
 ## Version and Health
 

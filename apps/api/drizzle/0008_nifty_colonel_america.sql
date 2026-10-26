@@ -1,0 +1,4 @@
+ALTER TABLE "data_source" ADD CONSTRAINT "data_source_kind_check" CHECK ("data_source"."kind" in ('csv'));--> statement-breakpoint
+ALTER TABLE "ingestion_run" ADD CONSTRAINT "ingestion_run_mode_check" CHECK ("ingestion_run"."mode" in ('upload', 'source'));--> statement-breakpoint
+ALTER TABLE "ingestion_run" ADD CONSTRAINT "ingestion_run_status_check" CHECK ("ingestion_run"."status" in ('queued', 'running', 'succeeded', 'partial', 'failed'));--> statement-breakpoint
+ALTER TABLE "ingestion_run" ADD CONSTRAINT "ingestion_run_counts_check" CHECK ("ingestion_run"."total_rows" >= 0 and "ingestion_run"."inserted_rows" >= 0 and "ingestion_run"."updated_rows" >= 0 and "ingestion_run"."failed_rows" >= 0);

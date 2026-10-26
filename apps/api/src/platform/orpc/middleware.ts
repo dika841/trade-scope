@@ -1,5 +1,5 @@
 import { AUTH_MESSAGE } from "@app/messages";
-import { canAll, type TPermission } from "@app/permissions";
+import { canAll, canAny, type TPermission } from "@app/permissions";
 import { D } from "@mobily/ts-belt";
 import { ORPCError, os } from "@orpc/server";
 import { match, P } from "ts-pattern";
@@ -42,6 +42,17 @@ export const permissionRequire = (
 ): TProtectedProcedure =>
 	protectedProcedure.use(async ({ context, next }) =>
 		match(canAll(context.permissions, required))
+			.with(false, () => {
+				throw new ORPCError("FORBIDDEN", { message: AUTH_MESSAGE.FORBIDDEN });
+			})
+			.otherwise(() => next({ context })),
+	);
+
+export const permissionRequireAny = (
+	...required: TPermission[]
+): TProtectedProcedure =>
+	protectedProcedure.use(async ({ context, next }) =>
+		match(canAny(context.permissions, required))
 			.with(false, () => {
 				throw new ORPCError("FORBIDDEN", { message: AUTH_MESSAGE.FORBIDDEN });
 			})

@@ -50,6 +50,20 @@
       "when": 1792698649020,
       "tag": "0006_silky_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792765802647,
+      "tag": "0007_wooden_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792767054110,
+      "tag": "0008_nifty_colonel_america",
+      "breakpoints": true
     }
   ]
 }

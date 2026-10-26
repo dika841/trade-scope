@@ -51,6 +51,14 @@ export class EQueue extends Schema.TaggedError<EQueue>()(ERROR_TAG.QUEUE, {
 	cause: Schema.Defect(),
 }) {}
 
+export class EUpstream extends Schema.TaggedError<EUpstream>()(
+	ERROR_TAG.UPSTREAM,
+	{
+		message: Schema.String,
+		cause: Schema.Defect(),
+	},
+) {}
+
 export type TDomainError =
 	| ENotFound
 	| EForbidden
@@ -59,4 +67,5 @@ export type TDomainError =
 	| EBadRequest
 	| EDatabase
 	| EAuth
-	| EQueue;
+	| EQueue
+	| EUpstream;

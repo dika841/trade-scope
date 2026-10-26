@@ -43,6 +43,11 @@ const toORPCError = (error: TDomainError): ORPCError<string, undefined> =>
 					message: ERROR_MESSAGE.INTERNAL,
 				}),
 		)
+		.with(
+			{ _tag: ERROR_TAG.UPSTREAM },
+			(e): ORPCError<string, undefined> =>
+				new ORPCError("BAD_GATEWAY", { message: e.message }),
+		)
 		.exhaustive();
 
 type TResult<A> =

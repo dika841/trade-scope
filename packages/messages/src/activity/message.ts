@@ -29,10 +29,17 @@ export const ACTIVITY_ACTION_LABEL = {
 	[ACTIVITY_ACTION.ROLE_UPDATE]: "Role updated",
 	[ACTIVITY_ACTION.ROLE_DELETE]: "Role deleted",
 	[ACTIVITY_ACTION.SESSION_CREATE]: "Signed in",
+	[ACTIVITY_ACTION.DATA_SOURCE_CREATE]: "Data source added",
+	[ACTIVITY_ACTION.DATA_SOURCE_UPDATE]: "Data source updated",
+	[ACTIVITY_ACTION.DATA_SOURCE_DELETE]: "Data source deleted",
+	[ACTIVITY_ACTION.INGESTION_RUN]: "Ingestion queued",
+	[ACTIVITY_ACTION.INGESTION_FINISH]: "Ingestion finished",
 } as const satisfies Record<TActivityAction, string>;
 
 export const ACTIVITY_ENTITY_LABEL = {
 	[ACTIVITY_RESOURCE_TYPE.USER]: "User",
 	[ACTIVITY_RESOURCE_TYPE.ROLE]: "Role",
 	[ACTIVITY_RESOURCE_TYPE.SESSION]: "Session",
+	[ACTIVITY_RESOURCE_TYPE.DATA_SOURCE]: "Data source",
+	[ACTIVITY_RESOURCE_TYPE.INGESTION]: "Ingestion",
 } as const satisfies Record<TActivityResourceType, string>;

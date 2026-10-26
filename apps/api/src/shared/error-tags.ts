@@ -7,4 +7,5 @@ export const ERROR_TAG = {
 	DATABASE: "EDatabase",
 	AUTH: "EAuth",
 	QUEUE: "EQueue",
+	UPSTREAM: "EUpstream",
 } as const;

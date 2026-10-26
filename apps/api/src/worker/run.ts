@@ -22,10 +22,8 @@ import {
 	shutdownOn,
 	shutdownRun,
 } from "#/platform/shutdown.ts";
-import {
-	exampleJobProcess,
-	type TExampleJobPayload,
-} from "#/worker/job-handler.ts";
+import { ingestionJobProcess } from "#/worker/job-handler.ts";
+import type { TIngestionJobPayload } from "#/ingestion/index.ts";
 
 const EXIT_OK = 0;
 const EXIT_FAILURE = 1;
@@ -82,16 +80,16 @@ shutdownOn(
 	},
 );
 
-await jobWorkerCreate<TExampleJobPayload>({
-	name: QUEUE_NAME.EXAMPLE,
+await jobWorkerCreate<TIngestionJobPayload>({
+	name: QUEUE_NAME.INGESTION,
 	channel: connection.channel,
-	handler: exampleJobProcess,
+	handler: ingestionJobProcess,
 	dedupe: jobDedupeCreate(client),
 	onError: (cause, message): void => {
 		logger.error(
 			{
 				err: cause,
-				queue: QUEUE_NAME.EXAMPLE,
+				queue: QUEUE_NAME.INGESTION,
 				messageId: message.properties.messageId,
 			},
 			"job.consume.failed",

@@ -2,7 +2,7 @@ import { BASE_URL } from "./client.ts";
 
 type TApiRequest = {
 	path: string;
-	cookie: string;
+	cookie?: string;
 	method?: "GET" | "POST" | "PATCH" | "DELETE";
 	body?: unknown;
 };
@@ -15,7 +15,10 @@ export const apiFetch = ({
 }: TApiRequest): Promise<Response> =>
 	fetch(`${BASE_URL}/api${path}`, {
 		method,
-		headers: { "Content-Type": "application/json", cookie },
+		headers: {
+			"Content-Type": "application/json",
+			...(cookie === undefined ? {} : { cookie }),
+		},
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
 

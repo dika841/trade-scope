@@ -42,6 +42,19 @@ export const useDashboardActivity = (): TActivityOut["list"] => {
 	return data;
 };
 
+export const useDashboardIngestion = (): {
+	total: number;
+	attention: number;
+} => {
+	const { data } = useSuspenseQuery(
+		orpc.ingestion.stats.queryOptions({
+			queryKey: orpc.ingestion.stats.key(),
+		}),
+	);
+
+	return { total: data.total, attention: data.partial + data.failed };
+};
+
 export const useDashboardHealth = (): TDashboardHealth => {
 	const query = useQuery(
 		orpc.health.check.queryOptions({ queryKey: orpc.health.check.key() }),

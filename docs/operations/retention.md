@@ -30,7 +30,9 @@ Running the prune twice at once is harmless. Both passes delete rows that match,
 
 | Store | Retained | Why |
 |---|---|---|
-| `user`, `note`, `custom_role` | Indefinitely | Business records. Deleting them is a product decision, not an operations one |
+| `user`, `custom_role`, `data_source` | Indefinitely | Business records. Deleting them is a product decision, not an operations one |
+| `hs_product`, `hs_alias` | Indefinitely | The catalog is the product; superseded rows are updated in place and old revisions stay addressable by `hs_revision` |
+| `ingestion_run` | Indefinitely | The run is the audit record for what was imported, by whom, and what was rejected. An uploaded payload is kept with its run so a failed or partial run can be retried; it is capped at 2 MB per run |
 | `session`, `account`, `verification` | Managed by better-auth | Sessions expire on their own schedule, and a password reset already deletes the user's sessions |
 | Upstash Redis | Minutes to a day | Rate-limit counters expire with their window, job de-duplication claims after 24 hours. Nothing there is a record of anything |
 | RabbitMQ | Until acknowledged | Except the dead-letter queue, which holds until someone drains it. That is the point of it, and it is why the depth is alerted on rather than pruned |

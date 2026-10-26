@@ -84,6 +84,27 @@ describe("envSchema security", () => {
 		expect(result.success).toBe(false);
 	});
 
+	it("rejects a data source secret key that is too short", () => {
+		const result = envSchema.safeParse({
+			...ENV,
+			DATA_SOURCE_SECRET_KEY: "short",
+		});
+
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts a dedicated data source key and a blank value", () => {
+		expect(
+			envSchema.safeParse({
+				...ENV,
+				DATA_SOURCE_SECRET_KEY: "a-32-character-data-source-key!!",
+			}).success,
+		).toBe(true);
+		expect(
+			envSchema.safeParse({ ...ENV, DATA_SOURCE_SECRET_KEY: "" }).success,
+		).toBe(true);
+	});
+
 	it("requires Upstash credentials when REDIS_DRIVER=upstash", () => {
 		const { REDIS_URL: _redisUrl, ...withoutRedisUrl } = ENV;
 		const result = envSchema.safeParse({

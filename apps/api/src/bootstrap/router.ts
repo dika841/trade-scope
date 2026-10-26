@@ -1,7 +1,9 @@
 import { activityModule } from "#/activity/index.ts";
 import { authModule } from "#/auth/index.ts";
 import { catalogModule } from "#/catalog/index.ts";
+import { dataSourceModule } from "#/data-source/index.ts";
 import { healthModule } from "#/health/index.ts";
+import { ingestionModule } from "#/ingestion/index.ts";
 import { permissionModule } from "#/permission/index.ts";
 import { roleModule } from "#/role/index.ts";
 import { userModule } from "#/user/index.ts";
@@ -10,6 +12,8 @@ const appRouter = {
 	health: healthModule.routerBuild(),
 	me: authModule.routerBuild(),
 	catalog: catalogModule.routerBuild(),
+	dataSource: dataSourceModule.routerBuild(),
+	ingestion: ingestionModule.routerBuild(),
 	user: userModule.routerBuild(),
 	role: roleModule.routerBuild(),
 	permission: permissionModule.routerBuild(),

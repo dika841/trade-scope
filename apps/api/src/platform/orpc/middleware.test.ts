@@ -1,8 +1,14 @@
 import { AUTH_MESSAGE } from "@app/messages";
-import { type ORPCError, call } from "@orpc/server";
+import type { ORPCError } from "@orpc/server";
+import { call } from "@orpc/server";
+import { PERMISSION, type TPermission } from "@app/permissions";
 import { describe, expect, it } from "vitest";
 import type { TORPCContext } from "#/platform/orpc/context.ts";
-import { protectedProcedure } from "#/platform/orpc/middleware.ts";
+import {
+	permissionRequire,
+	permissionRequireAny,
+	protectedProcedure,
+} from "#/platform/orpc/middleware.ts";
 import {
 	SESSION_STATE,
 	type TSession,
@@ -15,6 +21,7 @@ const SESSION: TSession = {
 };
 
 const HTTP_UNAUTHORIZED = 401;
+const HTTP_FORBIDDEN = 403;
 const HTTP_SERVICE_UNAVAILABLE = 503;
 
 const contextOf = (
@@ -52,6 +59,33 @@ const errorOf = async (
 	throw new Error("expected the procedure to reject");
 };
 
+const callWithPermissions = (
+	procedure: ReturnType<typeof permissionRequireAny>,
+	permissions: readonly TPermission[],
+): Promise<unknown> =>
+	call(
+		procedure.handler(() => "ok"),
+		undefined,
+		{
+			context: contextOf(SESSION_STATE.RESOLVED, {
+				...SESSION,
+				permissions,
+			}),
+		},
+	);
+
+const errorOfPermissions = async (
+	procedure: ReturnType<typeof permissionRequireAny>,
+	permissions: readonly TPermission[],
+): Promise<ORPCError<string, unknown>> => {
+	try {
+		await callWithPermissions(procedure, permissions);
+	} catch (error) {
+		return error as ORPCError<string, unknown>;
+	}
+	throw new Error("expected the procedure to reject");
+};
+
 describe("protectedProcedure", () => {
 	it("runs the handler for a resolved session", async (): Promise<void> => {
 		expect(await callWith(SESSION_STATE.RESOLVED, SESSION)).toBe("ok");
@@ -76,5 +110,55 @@ describe("protectedProcedure", () => {
 		const anonymous = await errorOf(SESSION_STATE.ANONYMOUS, null);
 
 		expect(outage.status).not.toBe(anonymous.status);
+	});
+});
+
+describe("permissionRequire", () => {
+	it("requires every listed permission", async (): Promise<void> => {
+		const procedure = permissionRequire(
+			PERMISSION.ACTIVITY_READ,
+			PERMISSION.INGESTION_READ,
+		);
+
+		expect(
+			await callWithPermissions(procedure, [
+				PERMISSION.ACTIVITY_READ,
+				PERMISSION.INGESTION_READ,
+			]),
+		).toBe("ok");
+
+		const error = await errorOfPermissions(procedure, [
+			PERMISSION.ACTIVITY_READ,
+		]);
+		expect(error.status).toBe(HTTP_FORBIDDEN);
+	});
+});
+
+describe("permissionRequireAny", () => {
+	it("accepts a caller holding one of the listed permissions", async (): Promise<void> => {
+		const procedure = permissionRequireAny(
+			PERMISSION.INGESTION_READ,
+			PERMISSION.DATA_SOURCE_MANAGE,
+		);
+
+		expect(
+			await callWithPermissions(procedure, [PERMISSION.DATA_SOURCE_MANAGE]),
+		).toBe("ok");
+		expect(
+			await callWithPermissions(procedure, [PERMISSION.INGESTION_READ]),
+		).toBe("ok");
+	});
+
+	it("refuses a caller holding none of them", async (): Promise<void> => {
+		const procedure = permissionRequireAny(
+			PERMISSION.INGESTION_READ,
+			PERMISSION.DATA_SOURCE_MANAGE,
+		);
+		const error = await errorOfPermissions(procedure, [
+			PERMISSION.ACTIVITY_READ,
+		]);
+
+		expect(error.status).toBe(HTTP_FORBIDDEN);
+		expect(error.message).toBe(AUTH_MESSAGE.FORBIDDEN);
 	});
 });
