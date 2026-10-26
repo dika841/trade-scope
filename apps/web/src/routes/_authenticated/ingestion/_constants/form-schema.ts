@@ -1,9 +1,10 @@
 import { INGESTION_MESSAGE } from "@app/messages";
-import { INGESTION_MODE } from "@app/schemas";
+import { INGESTION_KIND, INGESTION_MODE } from "@app/schemas";
 import { z } from "zod";
 
 export const ingestionRunFormSchema = z
 	.object({
+		kind: z.enum([INGESTION_KIND.CATALOG, INGESTION_KIND.TRADE]),
 		mode: z.enum([INGESTION_MODE.UPLOAD, INGESTION_MODE.SOURCE]),
 		sourceId: z.string(),
 		fileName: z.string(),

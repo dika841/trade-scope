@@ -13,6 +13,7 @@ export const ROUTE_PATH = {
 	ACTIVITY: "/activity",
 	PRODUCTS: "/products",
 	PRODUCT: "/products/{hsCode}",
+	PRODUCT_MARKETS: "/products/{hsCode}/markets",
 	DATA_SOURCES: "/data-sources",
 	DATA_SOURCE: "/data-sources/{id}",
 	INGESTION_RUNS: "/ingestion",

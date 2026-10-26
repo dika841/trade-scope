@@ -2,6 +2,15 @@ import { INGESTION_MESSAGE } from "@app/messages";
 import { INGESTION_ERRORS_MAX, type TIngestionRowError } from "@app/schemas";
 import type { TIngestionProduct } from "#/ingestion/domain/ingestion.ts";
 import { A } from "@mobily/ts-belt";
+import {
+	cellOf,
+	columnsOf,
+	csvRowsParse,
+	dateValid,
+	digitsOf,
+	headerInvalid,
+	type TColumnIndex,
+} from "#/ingestion/application/ingestion-csv-shared.ts";
 import { EBadRequest } from "#/shared/errors.ts";
 
 const ROWS_MAX = 20_000;
@@ -10,12 +19,10 @@ const CODE_MIN_DIGITS = 2;
 const DESCRIPTION_MAX = 500;
 const REVISION_PATTERN = /^[A-Za-z0-9._-]{1,20}$/;
 const CODE_PATTERN = /^[0-9.\s]+$/;
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const LANGUAGE_PATTERN = /^[a-z]{2}$/;
 const ALIAS_MAX = 20;
 const ALIAS_LENGTH_MAX = 100;
 const LEVEL_MAX = 10;
-const DATE_PARTS = 3;
 
 const COLUMN = {
 	HS_CODE: "hs_code",
@@ -45,130 +52,10 @@ const ALLOWED_COLUMNS: readonly string[] = [
 	COLUMN.VALID_TO,
 ];
 
-type TColumnIndex = Readonly<Record<string, number>>;
-
-export type TIngestionParsed = {
+type TIngestionParsed = {
 	totalRows: number;
 	products: readonly TIngestionProduct[];
 	failures: readonly TIngestionRowError[];
-};
-
-const headerInvalid = (): EBadRequest =>
-	new EBadRequest({ message: INGESTION_MESSAGE.INVALID_HEADER });
-
-const unclosedQuote = (): EBadRequest =>
-	new EBadRequest({ message: INGESTION_MESSAGE.UNCLOSED_QUOTE });
-
-const csvRowsParse = (text: string): string[][] => {
-	const rows: string[][] = [];
-	let row: string[] = [];
-	let field = "";
-	let quoted = false;
-	const source = text.startsWith("\uFEFF") ? text.slice(1) : text;
-
-	for (let index = 0; index < source.length; index += 1) {
-		const char = source[index];
-
-		if (quoted) {
-			if (char === '"') {
-				if (source[index + 1] === '"') {
-					field += '"';
-					index += 1;
-				} else {
-					quoted = false;
-				}
-			} else {
-				field += char;
-			}
-		} else if (char === '"' && field === "") {
-			quoted = true;
-		} else if (char === ",") {
-			row.push(field);
-			field = "";
-		} else if (char === "\n") {
-			row.push(field);
-			rows.push(row);
-			row = [];
-			field = "";
-		} else if (char !== "\r") {
-			field += char;
-		}
-	}
-
-	if (quoted) {
-		throw unclosedQuote();
-	}
-
-	if (field !== "" || row.length > 0) {
-		row.push(field);
-		rows.push(row);
-	}
-
-	return rows;
-};
-
-const columnsOf = (header: readonly string[]): TColumnIndex => {
-	const normalized = A.map(header, (value) => value.trim().toLowerCase());
-	const supported = A.every(
-		normalized,
-		(value) => value === "" || A.includes(ALLOWED_COLUMNS, value),
-	);
-	const unique = new Set(normalized);
-
-	if (
-		!supported ||
-		unique.size !== normalized.length ||
-		!A.every(REQUIRED_COLUMNS, (value) => unique.has(value))
-	) {
-		throw headerInvalid();
-	}
-
-	const index: Record<string, number> = {};
-	for (let position = 0; position < normalized.length; position += 1) {
-		const name = normalized[position];
-		if (name !== undefined && name !== "") {
-			index[name] = position;
-		}
-	}
-
-	return index;
-};
-
-const cellOf = (
-	row: readonly string[],
-	columns: TColumnIndex,
-	name: string,
-): string => {
-	const index = columns[name];
-	return index === undefined ? "" : (row[index] ?? "");
-};
-
-const digitsOf = (value: string): string => value.replace(/[^0-9]/g, "");
-
-const dateValid = (value: string): boolean => {
-	if (!DATE_PATTERN.test(value)) {
-		return false;
-	}
-
-	const parts = value.split("-").map(Number);
-	const [year, month, day] = parts;
-
-	if (
-		parts.length !== DATE_PARTS ||
-		year === undefined ||
-		month === undefined ||
-		day === undefined
-	) {
-		return false;
-	}
-
-	const date = new Date(`${value}T00:00:00Z`);
-	return (
-		Number.isFinite(date.getTime()) &&
-		date.getUTCFullYear() === year &&
-		date.getUTCMonth() + 1 === month &&
-		date.getUTCDate() === day
-	);
 };
 
 const aliasesOf = (value: string): readonly string[] => {
@@ -289,10 +176,15 @@ export const ingestionCsvParse = (text: string): TIngestionParsed => {
 	const [header, ...body] = rows;
 
 	if (header === undefined) {
-		throw headerInvalid();
+		throw headerInvalid(INGESTION_MESSAGE.INVALID_HEADER);
 	}
 
-	const columns = columnsOf(header);
+	const columns = columnsOf(
+		header,
+		REQUIRED_COLUMNS,
+		ALLOWED_COLUMNS,
+		INGESTION_MESSAGE.INVALID_HEADER,
+	);
 
 	if (body.length > ROWS_MAX) {
 		throw new EBadRequest({ message: INGESTION_MESSAGE.ROWS_TOO_MANY });

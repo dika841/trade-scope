@@ -1,6 +1,7 @@
 import { formatDateTime, orDash } from "@app/format";
 import { INGESTION_MESSAGE } from "@app/messages";
 import {
+	INGESTION_KIND,
 	INGESTION_MODE,
 	INGESTION_SORT,
 	type TIngestionRun,
@@ -36,6 +37,14 @@ const columns = helper.columns([
 		header: INGESTION_MESSAGE.COLUMN_SOURCE,
 		cell: (context): string =>
 			orDash(context.row.original.sourceName ?? context.row.original.fileName),
+	}),
+	helper.display({
+		id: "kind",
+		header: INGESTION_MESSAGE.COLUMN_KIND,
+		cell: (context): string =>
+			context.row.original.kind === INGESTION_KIND.TRADE
+				? INGESTION_MESSAGE.KIND_TRADE
+				: INGESTION_MESSAGE.KIND_CATALOG,
 	}),
 	helper.display({
 		id: "mode",

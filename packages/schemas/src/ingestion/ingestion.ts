@@ -23,6 +23,14 @@ export const INGESTION_MODE = {
 export type TIngestionMode =
 	(typeof INGESTION_MODE)[keyof typeof INGESTION_MODE];
 
+export const INGESTION_KIND = {
+	CATALOG: "catalog",
+	TRADE: "trade",
+} as const;
+
+export type TIngestionKind =
+	(typeof INGESTION_KIND)[keyof typeof INGESTION_KIND];
+
 export const INGESTION_CSV_MAX_BYTES = 2_000_000;
 export const INGESTION_ERRORS_MAX = 50;
 
@@ -48,6 +56,7 @@ export const ingestionRunSchema = eventSchema(z.uuid()).extend({
 	sourceId: z.uuid().nullable(),
 	sourceName: z.string().nullable(),
 	retryOfId: z.uuid().nullable(),
+	kind: z.enum(INGESTION_KIND),
 	mode: z.enum(INGESTION_MODE),
 	fileName: z.string().nullable(),
 	status: z.enum(INGESTION_STATUS),
@@ -70,6 +79,7 @@ export type TIngestionRunDetail = z.infer<typeof ingestionRunDetailSchema>;
 
 export const ingestionRunCreateInputSchema = z
 	.object({
+		kind: z.enum(INGESTION_KIND).default(INGESTION_KIND.CATALOG),
 		mode: z.enum(INGESTION_MODE),
 		sourceId: z.preprocess(blankAsUndefined, z.uuid().optional()),
 		fileName: z.preprocess(

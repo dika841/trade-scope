@@ -8,4 +8,5 @@ export const REPO_TAG = {
 	DATA_SOURCE: "app/DataSourceRepo",
 	INGESTION: "app/IngestionRepo",
 	INGESTION_QUEUE: "app/IngestionQueue",
+	MARKET: "app/MarketRepo",
 } as const;

@@ -11,7 +11,7 @@ export const CATALOG_MESSAGE = {
 		"Choose the HS code whose description matches what you actually sell.",
 	LANDING_STEP_THREE_TITLE: "Compare",
 	LANDING_STEP_THREE_BODY:
-		"Market demand ranking and provenance arrive in the next sprint.",
+		"Compare importer demand, growth, and share with the source and period behind every figure.",
 	TITLE: "Find a product",
 	SUBTITLE:
 		"Search by product name, HS code, or a common term. Confirm the HS code before using an analysis.",
@@ -40,9 +40,6 @@ export const CATALOG_MESSAGE = {
 	LEVEL: "Level",
 	PARENT: "Parent code",
 	ALIASES: "Also known as",
-	NEXT_STEP: "Market demand ranking",
-	NEXT_STEP_BODY:
-		"Ranking for this product will be added in the next sprint. For now the catalog candidate is confirmed and ready to be used.",
 	CHOOSE_PRODUCT: "Choose a product",
 	CHOOSE_PRODUCT_BODY:
 		"Open this page from a search result so the HS revision is known.",

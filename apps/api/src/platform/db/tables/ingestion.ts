@@ -1,6 +1,8 @@
 import {
+	INGESTION_KIND,
 	INGESTION_MODE,
 	INGESTION_STATUS,
+	type TIngestionKind,
 	type TIngestionMode,
 	type TIngestionRowError,
 	type TIngestionStatus,
@@ -32,6 +34,7 @@ export const ingestionRun = pgTable(
 			{ onDelete: "set null" },
 		),
 		mode: text("mode").$type<TIngestionMode>().notNull(),
+		kind: text("kind").$type<TIngestionKind>().notNull().default("catalog"),
 		fileName: text("file_name"),
 		payload: text("payload"),
 		status: text("status").$type<TIngestionStatus>().notNull(),
@@ -65,6 +68,10 @@ export const ingestionRun = pgTable(
 			sql`${table.mode} in ('upload', 'source')`,
 		),
 		check(
+			"ingestion_run_kind_check",
+			sql`${table.kind} in ('catalog', 'trade')`,
+		),
+		check(
 			"ingestion_run_status_check",
 			sql`${table.status} in ('queued', 'running', 'succeeded', 'partial', 'failed')`,
 		),
@@ -76,6 +83,7 @@ export const ingestionRun = pgTable(
 );
 
 export const INGESTION_DEFAULTS = {
+	KIND: INGESTION_KIND.CATALOG,
 	MODE: INGESTION_MODE.UPLOAD,
 	STATUS: INGESTION_STATUS.QUEUED,
 } as const;

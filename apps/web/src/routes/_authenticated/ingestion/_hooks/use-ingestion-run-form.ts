@@ -1,5 +1,6 @@
 import {
 	INGESTION_CSV_MAX_BYTES,
+	INGESTION_KIND,
 	INGESTION_MODE,
 	ingestionRunCreateInputSchema,
 	type TIngestionMode,
@@ -18,6 +19,7 @@ import {
 import { useIngestionRunCreate } from "#/routes/_authenticated/ingestion/_hooks/use-ingestion.ts";
 
 const DEFAULT_VALUES: TIngestionRunFormValues = {
+	kind: INGESTION_KIND.CATALOG,
 	mode: INGESTION_MODE.UPLOAD,
 	sourceId: "",
 	fileName: "",
@@ -48,11 +50,12 @@ export const useIngestionRunForm = (): TIngestionRunForm => {
 			const payload =
 				value.mode === INGESTION_MODE.UPLOAD
 					? {
+							kind: value.kind,
 							mode: value.mode,
 							fileName: value.fileName,
 							content: value.content,
 						}
-					: { mode: value.mode, sourceId: value.sourceId };
+					: { kind: value.kind, mode: value.mode, sourceId: value.sourceId };
 
 			runCreate.mutate(ingestionRunCreateInputSchema.parse(payload), {
 				onSuccess: (run) => {

@@ -56,6 +56,7 @@ export const ingestionRetry = Effect.fn("ingestionRetry")(function* (
 	const row = yield* repo.create({
 		sourceId: original.sourceId,
 		retryOfId: original.id,
+		kind: original.kind,
 		mode: original.mode,
 		fileName: original.fileName,
 		payload: original.payload,
@@ -68,6 +69,7 @@ export const ingestionRetry = Effect.fn("ingestionRetry")(function* (
 		resourceType: ACTIVITY_RESOURCE_TYPE.INGESTION,
 		resourceId: row.id,
 		metadata: {
+			kind: row.kind,
 			mode: row.mode,
 			source:
 				row.fileName ?? original.sourceName ?? INGESTION_MESSAGE.RETRY_ACTION,

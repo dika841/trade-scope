@@ -14,6 +14,7 @@ import { DbService, type TDbServiceId } from "#/platform/db/db-service.ts";
 import { user } from "#/platform/db/tables/auth.ts";
 import { logger } from "#/platform/observability/logger.ts";
 import { catalogSeed } from "#/scripts/seed-catalog.ts";
+import { marketSeed } from "#/scripts/seed-market.ts";
 import { seedPlanFor, type TSeedPlan } from "#/scripts/seed-plan.ts";
 
 const EXIT_OK = 0;
@@ -81,6 +82,10 @@ const seedRun = (
 			.with(true, () => catalogSeed())
 			.otherwise(() => Effect.succeed(null));
 
+		const market = yield* match(plan.demoData)
+			.with(true, () => marketSeed())
+			.otherwise(() => Effect.succeed(null));
+
 		const seeded = match(plan.demoData)
 			.with(true, () => [admin, ...demoUsersFor(plan.password)])
 			.otherwise(() => [admin]);
@@ -92,6 +97,7 @@ const seedRun = (
 					role: seedUser.role,
 				})),
 				catalog,
+				market,
 				demoData: plan.demoData,
 			},
 			"seed finished",

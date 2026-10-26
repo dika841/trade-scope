@@ -28,6 +28,12 @@ ${NEW_HS_CODE},HS2022,E2E imported product,9999,6,e2e product,en
 bad-code,HS2022,Bad row,,6,,en
 `;
 
+const TRADE_CSV = `hs_code,hs_revision,importer_iso2,year,trade_value_usd,quantity_kg,source,source_url,retrieved_at
+090121,HS2022,US,2018,1000000,500,E2E trade,https://example.com/trade.csv,2024-01-15
+090121,HS2022,JP,2018,500000,,E2E trade,https://example.com/trade.csv,2024-01-15
+bad-code,HS2022,US,2018,1000,,E2E trade,https://example.com/trade.csv,2024-01-15
+`;
+
 let adminCookie = "";
 let analystCookie = "";
 let viewerCookie = "";
@@ -62,12 +68,13 @@ const runUpload = async (
 	cookie: string,
 	fileName: string,
 	content: string,
+	kind: "catalog" | "trade" = "catalog",
 ): Promise<TIngestionRun> =>
 	apiJson<TIngestionRun>({
 		path: "/ingestion",
 		cookie,
 		method: "POST",
-		body: { mode: "upload", fileName, content },
+		body: { kind, mode: "upload", fileName, content },
 	});
 
 beforeAll(async (): Promise<void> => {
@@ -164,6 +171,24 @@ describe("ingestion through the worker", () => {
 			path: `/products/${NEW_HS_CODE}?revision=HS2022`,
 		});
 		expect(product.aliases).toContain("e2e product");
+	});
+
+	it("imports trade flows when the run kind is trade", async (): Promise<void> => {
+		const created = await runUpload(
+			analystCookie,
+			"e2e-trade.csv",
+			TRADE_CSV,
+			"trade",
+		);
+		expect(created.kind).toBe("trade");
+
+		const run = await waitForRun(created.id, analystCookie);
+		expect(run.kind).toBe("trade");
+		expect(run.status).toBe(INGESTION_STATUS.PARTIAL);
+		expect(run.totalRows).toBe(3);
+		expect(run.insertedRows).toBe(2);
+		expect(run.updatedRows).toBe(0);
+		expect(run.failedRows).toBe(1);
 	});
 
 	it("queues a new run when a finished run is retried", async (): Promise<void> => {

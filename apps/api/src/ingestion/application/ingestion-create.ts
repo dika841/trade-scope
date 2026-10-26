@@ -51,6 +51,7 @@ export const ingestionCreate = Effect.fn("ingestionCreate")(function* (
 		sourceId:
 			input.mode === INGESTION_MODE.SOURCE ? (input.sourceId ?? null) : null,
 		retryOfId: null,
+		kind: input.kind,
 		mode: input.mode,
 		fileName:
 			input.mode === INGESTION_MODE.UPLOAD ? (input.fileName ?? null) : null,
@@ -65,6 +66,7 @@ export const ingestionCreate = Effect.fn("ingestionCreate")(function* (
 		resourceType: ACTIVITY_RESOURCE_TYPE.INGESTION,
 		resourceId: row.id,
 		metadata: {
+			kind: row.kind,
 			mode: row.mode,
 			source: source?.name ?? row.fileName ?? INGESTION_MESSAGE.NEW_RUN,
 		},

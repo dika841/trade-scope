@@ -12,6 +12,7 @@ export { ERROR_MESSAGE } from "./error/message.ts";
 export { HEALTH_MESSAGE } from "./health/message.ts";
 export { INGESTION_MESSAGE } from "./ingestion/message.ts";
 export { MAIL_MESSAGE } from "./mail/message.ts";
+export { MARKET_MESSAGE } from "./market/message.ts";
 export { NAV_MESSAGE } from "./nav/message.ts";
 export {
 	PERMISSION_LABEL,

@@ -12,6 +12,7 @@ export const toIngestionRunDto = (row: TIngestionRunRow): TIngestionRun =>
 		sourceId: row.sourceId,
 		sourceName: row.sourceName,
 		retryOfId: row.retryOfId,
+		kind: row.kind,
 		mode: row.mode,
 		fileName: row.fileName,
 		status: row.status,

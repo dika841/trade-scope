@@ -1,4 +1,4 @@
-import { CATALOG_MESSAGE } from "@app/messages";
+import { CATALOG_MESSAGE, MARKET_MESSAGE } from "@app/messages";
 import { expect, test } from "@playwright/test";
 
 test("searches for a product from the landing page and opens its detail", async ({
@@ -28,6 +28,9 @@ test("searches for a product from the landing page and opens its detail", async 
 		page.getByText("Coffee, roasted, not decaffeinated"),
 	).toBeVisible();
 	await expect(page.getByText("roasted coffee")).toBeVisible();
+	await expect(page.getByText(MARKET_MESSAGE.TITLE)).toBeVisible();
+	await expect(page.getByText("United States")).toBeVisible();
+	await expect(page.getByText("Demo trade dataset")).toBeVisible();
 });
 
 test("keeps the public search available without a session", async ({

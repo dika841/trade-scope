@@ -4,6 +4,7 @@ import { catalogModule } from "#/catalog/index.ts";
 import { dataSourceModule } from "#/data-source/index.ts";
 import { healthModule } from "#/health/index.ts";
 import { ingestionModule } from "#/ingestion/index.ts";
+import { marketModule } from "#/market/index.ts";
 import { permissionModule } from "#/permission/index.ts";
 import { roleModule } from "#/role/index.ts";
 import { userModule } from "#/user/index.ts";
@@ -12,6 +13,7 @@ const appRouter = {
 	health: healthModule.routerBuild(),
 	me: authModule.routerBuild(),
 	catalog: catalogModule.routerBuild(),
+	market: marketModule.routerBuild(),
 	dataSource: dataSourceModule.routerBuild(),
 	ingestion: ingestionModule.routerBuild(),
 	user: userModule.routerBuild(),

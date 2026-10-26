@@ -11,6 +11,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import type { FC, ReactElement } from "react";
 import { useCatalogProduct } from "#/routes/_public/products/_hooks/use-catalog-product.ts";
+import { MarketRankingCard } from "#/routes/_public/products/_components/market-ranking-card.tsx";
 import { formatHsCode } from "#/routes/_public/search/_utils/format-hs-code.ts";
 
 const ProductPage: FC = (): ReactElement => {
@@ -128,12 +129,7 @@ const ProductPage: FC = (): ReactElement => {
 				</CardContent>
 			</Card>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>{CATALOG_MESSAGE.NEXT_STEP}</CardTitle>
-					<CardDescription>{CATALOG_MESSAGE.NEXT_STEP_BODY}</CardDescription>
-				</CardHeader>
-			</Card>
+			<MarketRankingCard hsCode={detail.hsCode} revision={detail.hsRevision} />
 		</div>
 	);
 };

@@ -2,12 +2,14 @@ import { ACTIVITY_ACTION, ACTIVITY_RESOURCE_TYPE } from "@app/activity";
 import { DATA_SOURCE_MESSAGE, INGESTION_MESSAGE } from "@app/messages";
 import {
 	INGESTION_CSV_MAX_BYTES,
+	INGESTION_KIND,
 	INGESTION_MODE,
 	INGESTION_STATUS,
 	isIngestionTerminal,
 } from "@app/schemas";
 import { Effect } from "effect";
 import { ingestionCsvParse } from "#/ingestion/application/ingestion-csv.ts";
+import { ingestionTradeCsvParse } from "#/ingestion/application/ingestion-trade-csv.ts";
 import {
 	IngestionRepo,
 	type TIngestionFinalizeInput,
@@ -107,6 +109,7 @@ const finish = (
 				resourceType: ACTIVITY_RESOURCE_TYPE.INGESTION,
 				resourceId: row.id,
 				metadata: {
+					kind: row.kind,
 					status: row.status,
 					totalRows: row.totalRows,
 					insertedRows: row.insertedRows,
@@ -141,6 +144,103 @@ export const ingestionProcess = Effect.fn("ingestionProcess")(function* (
 		run.mode === INGESTION_MODE.SOURCE && run.sourceId !== null
 			? yield* repo.findSource(run.sourceId)
 			: null;
+
+	if (run.kind === INGESTION_KIND.TRADE) {
+		const parsed = yield* sourceInputRead(run, source).pipe(
+			Effect.flatMap((text) =>
+				Effect.try({
+					try: () => ingestionTradeCsvParse(text),
+					catch: (cause): EBadRequest | EUpstream =>
+						cause instanceof EBadRequest
+							? cause
+							: new EBadRequest({
+									message: INGESTION_MESSAGE.INVALID_TRADE_HEADER,
+								}),
+				}),
+			),
+			Effect.matchEffect({
+				onFailure: (error) =>
+					finish(
+						{
+							id: run.id,
+							status: INGESTION_STATUS.FAILED,
+							totalRows: 0,
+							insertedRows: 0,
+							updatedRows: 0,
+							failedRows: 0,
+							errors: [],
+							message: error.message,
+						},
+						run.triggeredBy,
+					).pipe(Effect.as(null)),
+				onSuccess: (value) => Effect.succeed(value),
+			}),
+		);
+
+		if (parsed === null) {
+			return;
+		}
+
+		if (parsed.totalRows === 0) {
+			yield* finish(
+				{
+					id: run.id,
+					status: INGESTION_STATUS.FAILED,
+					totalRows: 0,
+					insertedRows: 0,
+					updatedRows: 0,
+					failedRows: 0,
+					errors: [],
+					message: INGESTION_MESSAGE.EMPTY_SOURCE,
+				},
+				run.triggeredBy,
+			);
+			return;
+		}
+
+		const status =
+			parsed.failures.length === 0
+				? INGESTION_STATUS.SUCCEEDED
+				: INGESTION_STATUS.PARTIAL;
+
+		yield* transactional(
+			Effect.gen(function* () {
+				const counts = yield* repo.upsertTrade(parsed.trades);
+
+				const row = yield* repo.finalize({
+					id: run.id,
+					status,
+					totalRows: parsed.totalRows,
+					insertedRows: counts.inserted,
+					updatedRows: counts.updated,
+					failedRows: parsed.failures.length,
+					errors: parsed.failures,
+					message: null,
+				});
+
+				if (row === null) {
+					return;
+				}
+
+				const activityRepo = yield* ActivityRecorder;
+				yield* activityRepo.insert({
+					actorId: run.triggeredBy,
+					action: ACTIVITY_ACTION.INGESTION_FINISH,
+					resourceType: ACTIVITY_RESOURCE_TYPE.INGESTION,
+					resourceId: row.id,
+					metadata: {
+						kind: row.kind,
+						status: row.status,
+						totalRows: row.totalRows,
+						insertedRows: row.insertedRows,
+						updatedRows: row.updatedRows,
+						failedRows: row.failedRows,
+					},
+				});
+			}),
+		);
+		return;
+	}
 
 	const parsed = yield* sourceInputRead(run, source).pipe(
 		Effect.flatMap((text) =>
@@ -228,6 +328,7 @@ export const ingestionProcess = Effect.fn("ingestionProcess")(function* (
 				resourceType: ACTIVITY_RESOURCE_TYPE.INGESTION,
 				resourceId: row.id,
 				metadata: {
+					kind: row.kind,
 					status: row.status,
 					totalRows: row.totalRows,
 					insertedRows: row.insertedRows,

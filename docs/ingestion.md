@@ -1,6 +1,16 @@
 # Ingestion
 
-Ingestion is the only path that writes to the HS catalog outside the seed. It is deliberately a job, not a request: the API validates the request, stores the input, and queues the run. The worker does the slow part and records the result. That keeps a 20,000 row import from holding an HTTP request open and gives every run a durable audit row.
+Ingestion is the only path that writes to the HS catalog or the trade flows behind the market ranking outside the seed. It is deliberately a job, not a request: the API validates the request, stores the input, and queues the run. The worker does the slow part and records the result. That keeps a 20,000 row import from holding an HTTP request open and gives every run a durable audit row.
+
+## Kinds
+
+| Kind | Writes | Key |
+|---|---|---|
+| `catalog` | `hs_product` and `hs_alias` | `(hs_code, hs_revision)` |
+| `trade` | `trade_flow` | `(hs_code, hs_revision, importer_iso2, year)` |
+
+A trade row must name a product that already exists in the catalog; the catalog stays the anchor for every market ranking. Both kinds share the same run history, data source handling, validation failure reporting, and retry behaviour.
+
 
 ## Lifecycle
 
@@ -20,14 +30,15 @@ Fetching a source and parsing the CSV happen outside the database transaction. O
 
 1. `hs_product` is upserted on `(hs_code, hs_revision)`. `xmax` is not used; existing keys are read first so the counts distinguish inserted from updated.
 2. `hs_alias` is inserted with `on conflict do nothing` on `(alias, hs_product_id, language)`.
-3. The run is updated with counts, rejected rows, and `finishedAt`.
-4. An `activity_log` row is written with the same counts.
+3. For a `trade` run, `trade_flow` is upserted on `(hs_code, hs_revision, importer_iso2, year)`; its source, URL, retrieval time, value, and quantity are replaced together.
+4. The run is updated with counts, rejected rows, and `finishedAt`.
+5. An `activity_log` row is written with the same counts.
 
 If the transaction fails, the run stays `running` and the broker retries the job. If it succeeds, a redelivery is acknowledged without re-running because the status is already terminal.
 
 ## Rejected rows
 
-A row is rejected without stopping the import. The first error per row is recorded, up to 50 errors, while the run still counts every rejected row. A row is rejected for a bad HS code, revision, description, level, language, alias count, date, a repeated code and revision in the same file, or a missing required column in the header. An unknown header column is also rejected, so a typo cannot import silently.
+A row is rejected without stopping the import. The first error per row is recorded, up to 50 errors, while the run still counts every rejected row. A catalog row is rejected for a bad HS code, revision, description, level, language, alias count, date, a repeated code and revision in the same file, or a missing required column in the header. A trade row is rejected for a bad HS code, revision, market code, year, value, quantity, source, source URL, retrieval time, a repeated product-market-year in the same file, or a missing required column in the header. An unknown header column is also rejected, so a typo cannot import silently.
 
 Blank lines are skipped and are not counted. `total_rows` counts non-blank data rows; `inserted_rows + updated_rows + failed_rows` equals it.
 
@@ -47,7 +58,7 @@ DNS rebinding between the check and the fetch is still theoretically possible. T
 
 ## Retry
 
-`POST /ingestion/{id}/retry` creates a new queued run with the same source or uploaded payload and sets `retry_of_id`. The original run is untouched. Retrying a `queued` or `running` run is refused with a conflict, because two live runs with the same input are not useful.
+`POST /ingestion/{id}/retry` creates a new queued run with the same source or uploaded payload and the same kind, then sets `retry_of_id`. The original run is untouched. Retrying a `queued` or `running` run is refused with a conflict, because two live runs with the same input are not useful.
 
 ## Why the worker
 

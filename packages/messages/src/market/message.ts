@@ -1,0 +1,22 @@
+export const MARKET_MESSAGE = {
+	TITLE: "Market demand",
+	SUBTITLE:
+		"Import demand by market for the latest period with data, with the source behind every figure.",
+	LOADING: "Loading market demand…",
+	ERROR_TITLE: "Market demand is unavailable",
+	ERROR_BODY: "The ranking could not be loaded. Try again in a moment.",
+	EMPTY_TITLE: "No trade data yet",
+	EMPTY_BODY: "Trade data for this HS code has not been imported yet.",
+	PERIOD: "Period",
+	TOTAL: "Total imports",
+	PREVIOUS_PERIOD: "Compared with",
+	COLUMN_RANK: "#",
+	COLUMN_MARKET: "Market",
+	COLUMN_VALUE: "Import value",
+	COLUMN_GROWTH: "Growth",
+	COLUMN_SHARE: "Share",
+	GROWTH_NEW: "New",
+	PROVENANCE: "Source",
+	RETRIEVED: "Retrieved",
+	VIEW_SOURCE: "View source",
+} as const;

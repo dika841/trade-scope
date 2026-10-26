@@ -4,3 +4,4 @@ export * from "./tables/catalog.ts";
 export * from "./tables/custom-role.ts";
 export * from "./tables/data-source.ts";
 export * from "./tables/ingestion.ts";
+export * from "./tables/market.ts";

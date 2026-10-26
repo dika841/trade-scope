@@ -87,13 +87,25 @@ The first public slice is an HS catalog search. It works without a session:
 | `GET /api/products/{hsCode}?revision=HS2022` | Returns the confirmed product and its aliases |
 | `/` | Public landing page with search |
 | `/search?q=coffee` | Candidate list with an ambiguity warning |
-| `/products/090121?revision=HS2022` | Product detail and the next-step placeholder |
+| `/products/090121?revision=HS2022` | Product detail with its market demand ranking |
+| `GET /api/products/{hsCode}/markets?revision=HS2022&limit=10` | Import demand by market for the latest period with data |
 
-`make db-seed` seeds six HS codes across coffee, apparel, smartphones, palm oil, and computers, plus six countries. The seed is demo data; the import below is the real write path.
+`make db-seed` seeds six HS codes across coffee, apparel, smartphones, palm oil, and computers, plus six countries and two years of demo trade flows. The seed is demo data; the import below is the real write path.
+
+## Market demand
+
+The product page ranks importer markets by the latest year with trade data. Each row carries the import value, year-on-year growth (or `New` when there is no prior year), and the market's share of total imports for that product. The response also carries provenance — the source, its URL, and when it was retrieved — so no figure appears without the period and source behind it.
+
+| Surface | What it does |
+|---|---|
+| `GET /api/products/{hsCode}/markets?revision=HS2022&limit=10` | Returns the latest period, total imports, ranked markets, and provenance |
+| `/products/{hsCode}?revision=HS2022` | Renders the ranking card, its empty state, and the source footnote |
+
+A product with no trade data still resolves; the ranking returns `periodYear: null` and an empty list rather than a 404. An unknown HS code or revision is a 404, because the catalog is the anchor.
 
 ## Ingestion and data sources
 
-Phase 2 adds the write side of the catalog. An ingestion run reads a CSV, validates every row, and upserts `hs_product` and `hs_alias` in one transaction. Rows that fail validation are reported with their line number and the run finishes as `partial`; a run with no valid rows finishes as `failed`.
+Phase 2 adds the write side of the catalog. An ingestion run reads a CSV, validates every row, and upserts `hs_product` and `hs_alias` in one transaction. Rows that fail validation are reported with their line number and the run finishes as `partial`; a run with no valid rows finishes as `failed`. A run carries a `kind`: `catalog` writes the HS catalog, `trade` writes the trade flows behind the market ranking.
 
 | Surface | What it does |
 |---|---|
@@ -105,9 +117,11 @@ Phase 2 adds the write side of the catalog. An ingestion run reads a CSV, valida
 | `/ingestion/{id}` | Summary, rejected rows, and retry |
 | `/data-sources` | Superadmin-only endpoint and token management |
 
+The run form also chooses the data kind.
+
 The API only queues the run; the **worker** performs it, so `make worker` has to be running for a run to leave `queued`. The worker claims a run through Redis, updates it to `running`, and records the result even when the source is unreachable. The two contracts share `@app/schemas`, so the web and API cannot drift.
 
-CSV columns:
+Catalog CSV columns:
 
 | Column | Required | Notes |
 |---|---|---|
@@ -119,6 +133,20 @@ CSV columns:
 | `aliases` | no | Up to 20, separated by `|` or `;` |
 | `language` | no | Two lowercase letters, `en` by default |
 | `valid_from`, `valid_to` | no | `YYYY-MM-DD` |
+
+Trade flow CSV columns:
+
+| Column | Required | Notes |
+|---|---|---|
+| `hs_code` | yes | Must match a product in the catalog |
+| `hs_revision` | yes | For example `HS2022` |
+| `importer_iso2` | yes | Two-letter market code, for example `US` |
+| `year` | yes | 1900-2100; the latest year is what the ranking shows |
+| `trade_value_usd` | yes | Non-negative USD value |
+| `quantity_kg` | no | Non-negative quantity in kilograms |
+| `source` | yes | Provenance label shown under the ranking |
+| `source_url` | no | `http://` or `https://` link to the source |
+| `retrieved_at` | no | ISO date or date-time; defaults to the import time |
 
 Files are capped at 2 MB and 20,000 rows. A data source token is encrypted with AES-256-GCM at rest and only its last four characters are ever returned; the token is sent as a bearer credential only when the worker fetches the source. Set `DATA_SOURCE_SECRET_KEY` (32 characters or more, shared by the api and the worker) to keep token encryption independent of the auth secret. Endpoints that resolve to a private, loopback, or link-local address are refused before any request is made, and redirects are disabled. The full format and failure behaviour are in [docs/ingestion.md](docs/ingestion.md).
 

@@ -1,9 +1,9 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { afterAll, describe, expect, it } from "vitest";
-import { apiEnv } from "../support/services.ts";
+import { apiEnv, API_PORT } from "../support/services.ts";
 import { SEED_CREDENTIALS, signIn } from "../support/sign-in.ts";
 
-const OUTAGE_PORT = 3109;
+const OUTAGE_PORT = API_PORT + 2;
 const UNREACHABLE_DATABASE = "postgres://app:app@127.0.0.1:5499/app";
 const LIVENESS = `http://127.0.0.1:${OUTAGE_PORT}/healthz`;
 const ME = `http://127.0.0.1:${OUTAGE_PORT}/api/me`;

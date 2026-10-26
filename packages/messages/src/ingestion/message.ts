@@ -9,9 +9,14 @@ export const INGESTION_MESSAGE = {
 	MODE_LABEL: "Input",
 	MODE_UPLOAD: "Upload CSV",
 	MODE_SOURCE: "From data source",
+	KIND_LABEL: "Data",
+	KIND_CATALOG: "Product catalog",
+	KIND_TRADE: "Trade flows",
 	FILE_LABEL: "CSV file",
 	FILE_HINT:
 		"Required columns: hs_code, hs_revision, description. Optional: parent_hs_code, level, aliases, language, valid_from, valid_to.",
+	TRADE_FILE_HINT:
+		"Required columns: hs_code, hs_revision, importer_iso2, year, trade_value_usd, source. Optional: quantity_kg, source_url, retrieved_at.",
 	SOURCE_LABEL: "Data source",
 	SOURCE_PLACEHOLDER: "Choose a data source",
 	SOURCE_REQUIRED: "Choose a data source.",
@@ -33,6 +38,7 @@ export const INGESTION_MESSAGE = {
 	BACK_TO_RUNS: "Back to ingestion",
 	EMPTY: "No ingestion runs yet.",
 	COLUMN_WHEN: "Started",
+	COLUMN_KIND: "Data",
 	COLUMN_SOURCE: "Source",
 	COLUMN_MODE: "Mode",
 	COLUMN_STATUS: "Status",
@@ -52,6 +58,7 @@ export const INGESTION_MESSAGE = {
 	STATUS_PARTIAL: "Partial",
 	STATUS_FAILED: "Failed",
 	SUMMARY_TITLE: "Summary",
+	SUMMARY_KIND: "Data",
 	SUMMARY_STATUS: "Status",
 	SUMMARY_SOURCE: "Source",
 	SUMMARY_MODE: "Input",
@@ -76,9 +83,20 @@ export const INGESTION_MESSAGE = {
 	EMPTY_SOURCE: "The input contained no rows.",
 	INVALID_HEADER:
 		"The CSV header must include hs_code, hs_revision and description, and use only supported columns.",
+	INVALID_TRADE_HEADER:
+		"The CSV header must include hs_code, hs_revision, importer_iso2, year, trade_value_usd and source, and use only supported columns.",
 	UNCLOSED_QUOTE: "A quoted field is not closed.",
 	DUPLICATE_ROW:
 		"This HS code and revision already appeared earlier in the file.",
+	DUPLICATE_TRADE_ROW:
+		"This product, market and year already appeared earlier in the file.",
+	INVALID_IMPORTER: "Use a two-letter market code, for example US.",
+	INVALID_YEAR: "Use a year between 1900 and 2100.",
+	INVALID_TRADE_VALUE: "Use a non-negative USD value.",
+	INVALID_QUANTITY: "Use a non-negative quantity in kilograms.",
+	INVALID_SOURCE: "Use a source name of 1-100 characters.",
+	INVALID_SOURCE_URL: "Use an http:// or https:// URL.",
+	INVALID_RETRIEVED_AT: "Use a valid ISO date or date-time.",
 	INVALID_CODE: "Use a 2-12 character HS code made of digits and dots.",
 	INVALID_REVISION:
 		"Use a revision of 1-20 letters, digits, dots, hyphens or underscores.",

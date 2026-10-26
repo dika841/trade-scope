@@ -19,7 +19,9 @@ import {
 import { INGESTION_MESSAGE } from "@app/messages";
 import {
 	type TDataSource,
+	INGESTION_KIND,
 	INGESTION_MODE,
+	type TIngestionKind,
 	type TIngestionMode,
 } from "@app/schemas";
 import { A } from "@mobily/ts-belt";
@@ -50,6 +52,7 @@ export const IngestionRunForm: FC<TIngestionRunFormProps> = (
 	} = useIngestionRunForm();
 	const activeSources = A.filter(props.sources, (source) => source.isActive);
 	const mode = form.state.values.mode;
+	const kind = form.state.values.kind;
 
 	return (
 		<Card>
@@ -59,6 +62,33 @@ export const IngestionRunForm: FC<TIngestionRunFormProps> = (
 			</CardHeader>
 			<CardContent>
 				<form onSubmit={onSubmit} className="flex flex-col gap-4">
+					<form.Field name="kind">
+						{(field) => (
+							<div className="flex flex-col gap-2">
+								<Label htmlFor={field.name}>
+									{INGESTION_MESSAGE.KIND_LABEL}
+								</Label>
+								<Select
+									value={field.state.value}
+									onValueChange={(value) =>
+										field.handleChange(value as TIngestionKind)
+									}
+								>
+									<SelectTrigger id={field.name} className="w-full sm:w-64">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value={INGESTION_KIND.CATALOG}>
+											{INGESTION_MESSAGE.KIND_CATALOG}
+										</SelectItem>
+										<SelectItem value={INGESTION_KIND.TRADE}>
+											{INGESTION_MESSAGE.KIND_TRADE}
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+					</form.Field>
 					<form.Field name="mode">
 						{(field) => (
 							<div className="flex flex-col gap-2">
@@ -100,7 +130,9 @@ export const IngestionRunForm: FC<TIngestionRunFormProps> = (
 										onChange={(event) => onFileChange(fileOf(event))}
 									/>
 									<p className="text-xs text-muted-foreground">
-										{INGESTION_MESSAGE.FILE_HINT}
+										{kind === INGESTION_KIND.TRADE
+											? INGESTION_MESSAGE.TRADE_FILE_HINT
+											: INGESTION_MESSAGE.FILE_HINT}
 									</p>
 									{fileError !== null && (
 										<p className="text-destructive text-sm">{fileError}</p>

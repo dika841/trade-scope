@@ -1,4 +1,5 @@
 import type {
+	TIngestionKind,
 	TIngestionListInput,
 	TIngestionMode,
 	TIngestionRowError,
@@ -15,6 +16,7 @@ export type TIngestionRunRow = TBaseRow & {
 	sourceId: string | null;
 	sourceName: string | null;
 	retryOfId: string | null;
+	kind: TIngestionKind;
 	mode: TIngestionMode;
 	fileName: string | null;
 	payload: string | null;
@@ -34,6 +36,7 @@ export type TIngestionRunRow = TBaseRow & {
 export type TIngestionRunRowInput = {
 	sourceId: string | null;
 	retryOfId: string | null;
+	kind: TIngestionKind;
 	mode: TIngestionMode;
 	fileName: string | null;
 	payload: string | null;
@@ -77,6 +80,23 @@ export type TIngestionCatalogCounts = {
 	aliases: number;
 };
 
+export type TIngestionTrade = {
+	hsCode: string;
+	hsRevision: string;
+	importerIso2: string;
+	periodYear: number;
+	tradeValueUsd: number;
+	quantityKg: number | null;
+	source: string;
+	sourceUrl: string | null;
+	retrievedAt: string | null;
+};
+
+export type TIngestionTradeCounts = {
+	inserted: number;
+	updated: number;
+};
+
 export type TIngestionStatsRow = {
 	total: number;
 	queued: number;
@@ -109,6 +129,9 @@ export type TIngestionRepo = {
 		sourceLabel: string;
 		products: readonly TIngestionProduct[];
 	}) => Effect.Effect<TIngestionCatalogCounts, EDatabase>;
+	upsertTrade: (
+		rows: readonly TIngestionTrade[],
+	) => Effect.Effect<TIngestionTradeCounts, EDatabase>;
 	stats: () => Effect.Effect<TIngestionStatsRow, EDatabase>;
 };
 

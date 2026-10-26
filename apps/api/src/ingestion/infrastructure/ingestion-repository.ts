@@ -6,6 +6,7 @@ import {
 	type TIngestionCatalogCounts,
 	type TIngestionRepo,
 	type TIngestionRunRow,
+	type TIngestionTradeCounts,
 } from "#/ingestion/domain/ingestion.ts";
 import { DbService, dbServiceLayer } from "#/platform/db/db-service.ts";
 import { offsetFor, orderFor } from "#/shared/pagination.ts";
@@ -14,6 +15,7 @@ import { user } from "#/platform/db/tables/auth.ts";
 import { hsAlias, hsProduct } from "#/platform/db/tables/catalog.ts";
 import { dataSource } from "#/platform/db/tables/data-source.ts";
 import { ingestionRun } from "#/platform/db/tables/ingestion.ts";
+import { tradeFlow } from "#/platform/db/tables/market.ts";
 import { EDatabase } from "#/shared/errors.ts";
 
 const CHUNK_SIZE = 500;
@@ -24,6 +26,7 @@ const runColumns = {
 	sourceId: ingestionRun.sourceId,
 	sourceName: dataSource.name,
 	retryOfId: ingestionRun.retryOfId,
+	kind: ingestionRun.kind,
 	mode: ingestionRun.mode,
 	fileName: ingestionRun.fileName,
 	payload: ingestionRun.payload,
@@ -122,6 +125,7 @@ export const ingestionRepoLayer = Layer.effect(
 						.values({
 							sourceId: input.sourceId,
 							retryOfId: input.retryOfId,
+							kind: input.kind,
 							mode: input.mode,
 							fileName: input.fileName,
 							payload: input.payload,
@@ -349,6 +353,96 @@ export const ingestionRepoLayer = Layer.effect(
 				catch: (cause) => new EDatabase({ cause }),
 			});
 
+		const upsertTrade: TIngestionRepo["upsertTrade"] = (rows) =>
+			Effect.tryPromise({
+				try: async (): Promise<TIngestionTradeCounts> => {
+					if (rows.length === 0) {
+						return { inserted: 0, updated: 0 };
+					}
+
+					const connection = dbActive(db);
+					const codes = Array.from(new Set(rows.map((row) => row.hsCode)));
+					const existing = new Set<string>();
+
+					for (const chunk of chunked(codes)) {
+						const found = await connection
+							.select({
+								hsCode: tradeFlow.hsCode,
+								hsRevision: tradeFlow.hsRevision,
+								importerIso2: tradeFlow.importerIso2,
+								periodYear: tradeFlow.periodYear,
+							})
+							.from(tradeFlow)
+							.where(inArray(tradeFlow.hsCode, chunk));
+
+						for (const row of found) {
+							existing.add(
+								`${row.hsCode}:${row.hsRevision}:${row.importerIso2}:${row.periodYear}`,
+							);
+						}
+					}
+
+					const now = new Date();
+					let inserted = 0;
+					let updated = 0;
+
+					for (const chunk of chunked(rows)) {
+						const written = await connection
+							.insert(tradeFlow)
+							.values(
+								chunk.map((row) => ({
+									hsCode: row.hsCode,
+									hsRevision: row.hsRevision,
+									importerIso2: row.importerIso2,
+									periodYear: row.periodYear,
+									tradeValueUsd: row.tradeValueUsd.toFixed(2),
+									quantityKg:
+										row.quantityKg === null ? null : row.quantityKg.toFixed(3),
+									source: row.source,
+									sourceUrl: row.sourceUrl,
+									retrievedAt:
+										row.retrievedAt === null ? now : new Date(row.retrievedAt),
+								})),
+							)
+							.onConflictDoUpdate({
+								target: [
+									tradeFlow.hsCode,
+									tradeFlow.hsRevision,
+									tradeFlow.importerIso2,
+									tradeFlow.periodYear,
+								],
+								set: {
+									tradeValueUsd: sql`excluded.trade_value_usd`,
+									quantityKg: sql`excluded.quantity_kg`,
+									source: sql`excluded.source`,
+									sourceUrl: sql`excluded.source_url`,
+									retrievedAt: sql`excluded.retrieved_at`,
+									updatedAt: sql`now()`,
+								},
+							})
+							.returning({
+								hsCode: tradeFlow.hsCode,
+								hsRevision: tradeFlow.hsRevision,
+								importerIso2: tradeFlow.importerIso2,
+								periodYear: tradeFlow.periodYear,
+							});
+
+						for (const row of written) {
+							const key = `${row.hsCode}:${row.hsRevision}:${row.importerIso2}:${row.periodYear}`;
+
+							if (existing.has(key)) {
+								updated += 1;
+							} else {
+								inserted += 1;
+							}
+						}
+					}
+
+					return { inserted, updated };
+				},
+				catch: (cause) => new EDatabase({ cause }),
+			});
+
 		const stats: TIngestionRepo["stats"] = () =>
 			Effect.tryPromise({
 				try: async () => {
@@ -385,6 +479,7 @@ export const ingestionRepoLayer = Layer.effect(
 			failQueued,
 			findSource,
 			upsertCatalog,
+			upsertTrade,
 			stats,
 		});
 	}),

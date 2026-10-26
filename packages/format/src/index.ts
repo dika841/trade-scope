@@ -29,3 +29,11 @@ export const formatUsd = (cents: number): string =>
 	new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
 		cents / 100,
 	);
+
+export const formatUsdCompact = (value: number): string =>
+	new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: "USD",
+		notation: "compact",
+		maximumFractionDigits: 1,
+	}).format(value);

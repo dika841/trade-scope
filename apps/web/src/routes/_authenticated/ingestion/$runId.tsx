@@ -17,6 +17,7 @@ import { formatDateTime, orDash } from "@app/format";
 import { INGESTION_MESSAGE } from "@app/messages";
 import { PERMISSION } from "@app/permissions";
 import {
+	INGESTION_KIND,
 	INGESTION_MODE,
 	isIngestionTerminal,
 	type TIngestionRunDetail,
@@ -49,6 +50,11 @@ const modeLabel = (run: TIngestionRunDetail): string =>
 	run.mode === INGESTION_MODE.SOURCE
 		? INGESTION_MESSAGE.MODE_SOURCE
 		: INGESTION_MESSAGE.MODE_UPLOAD;
+
+const kindLabel = (run: TIngestionRunDetail): string =>
+	run.kind === INGESTION_KIND.TRADE
+		? INGESTION_MESSAGE.KIND_TRADE
+		: INGESTION_MESSAGE.KIND_CATALOG;
 
 const sourceLabel = (run: TIngestionRunDetail): string =>
 	orDash(run.sourceName ?? run.fileName);
@@ -89,6 +95,10 @@ const IngestionRunPage: FC = (): ReactElement => {
 						<SummaryItem
 							label={INGESTION_MESSAGE.SUMMARY_SOURCE}
 							value={sourceLabel(run)}
+						/>
+						<SummaryItem
+							label={INGESTION_MESSAGE.SUMMARY_KIND}
+							value={kindLabel(run)}
 						/>
 						<SummaryItem
 							label={INGESTION_MESSAGE.SUMMARY_MODE}

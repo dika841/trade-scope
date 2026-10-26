@@ -4,6 +4,7 @@ export * from "./catalog/index.ts";
 export * from "./data-source/index.ts";
 export * from "./health/index.ts";
 export * from "./ingestion/index.ts";
+export * from "./market/index.ts";
 export * from "./permission/index.ts";
 export * from "./role/index.ts";
 export * from "./shared/index.ts";
