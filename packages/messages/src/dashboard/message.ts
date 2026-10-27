@@ -9,6 +9,8 @@ export const DASHBOARD_MESSAGE = {
 	QUICK_ACTIONS: "Quick Actions",
 	CREATE_USER: "New User",
 	NEW_INGESTION: "New ingestion",
+	NEW_PILOT: "New pilot",
+	NEW_REPORT: "New report",
 	SYSTEM_HEALTH: "System",
 	VIEW_ALL: "View all",
 	JUST_NOW: "just now",

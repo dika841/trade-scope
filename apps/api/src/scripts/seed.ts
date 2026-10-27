@@ -15,6 +15,7 @@ import { user } from "#/platform/db/tables/auth.ts";
 import { logger } from "#/platform/observability/logger.ts";
 import { catalogSeed } from "#/scripts/seed-catalog.ts";
 import { marketSeed } from "#/scripts/seed-market.ts";
+import { pilotSeed } from "#/scripts/seed-pilot.ts";
 import { seedPlanFor, type TSeedPlan } from "#/scripts/seed-plan.ts";
 
 const EXIT_OK = 0;
@@ -73,7 +74,7 @@ const seedRun = (
 ): Effect.Effect<void, never, TDbServiceId | TAuthServiceId> =>
 	Effect.gen(function* () {
 		const admin = adminUserFor(plan.password);
-		yield* userEnsure(admin);
+		const adminId = yield* userEnsure(admin);
 		yield* match(plan.demoData)
 			.with(true, () => demoSeed(plan.password))
 			.otherwise(() => Effect.void);
@@ -84,6 +85,10 @@ const seedRun = (
 
 		const market = yield* match(plan.demoData)
 			.with(true, () => marketSeed())
+			.otherwise(() => Effect.succeed(null));
+
+		const pilot = yield* match(plan.demoData)
+			.with(true, () => pilotSeed(adminId))
 			.otherwise(() => Effect.succeed(null));
 
 		const seeded = match(plan.demoData)
@@ -98,6 +103,7 @@ const seedRun = (
 				})),
 				catalog,
 				market,
+				pilot,
 				demoData: plan.demoData,
 			},
 			"seed finished",

@@ -6,6 +6,8 @@ import {
 	Activity,
 	CircleUser,
 	Database,
+	FileText,
+	FlaskConical,
 	KeyRound,
 	LayoutDashboard,
 	Shield,
@@ -32,6 +34,18 @@ export const NAV_ITEMS: readonly TNavItem[] = [
 		label: NAV_MESSAGE.INGESTION,
 		permissions: [PERMISSION.INGESTION_READ],
 		icon: Upload,
+	},
+	{
+		to: "/pilots",
+		label: NAV_MESSAGE.PILOTS,
+		permissions: [PERMISSION.PILOT_READ],
+		icon: FlaskConical,
+	},
+	{
+		to: "/reports",
+		label: NAV_MESSAGE.REPORTS,
+		permissions: [PERMISSION.REPORT_READ],
+		icon: FileText,
 	},
 	{
 		to: "/data-sources",

@@ -9,4 +9,6 @@ export const REPO_TAG = {
 	INGESTION: "app/IngestionRepo",
 	INGESTION_QUEUE: "app/IngestionQueue",
 	MARKET: "app/MarketRepo",
+	PILOT: "app/PilotRepo",
+	REPORT: "app/ReportRepo",
 } as const;

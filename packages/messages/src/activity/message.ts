@@ -32,6 +32,11 @@ export const ACTIVITY_ACTION_LABEL = {
 	[ACTIVITY_ACTION.DATA_SOURCE_CREATE]: "Data source added",
 	[ACTIVITY_ACTION.DATA_SOURCE_UPDATE]: "Data source updated",
 	[ACTIVITY_ACTION.DATA_SOURCE_DELETE]: "Data source deleted",
+	[ACTIVITY_ACTION.PILOT_CREATE]: "Pilot created",
+	[ACTIVITY_ACTION.PILOT_UPDATE]: "Pilot updated",
+	[ACTIVITY_ACTION.REPORT_CREATE]: "Report generated",
+	[ACTIVITY_ACTION.REPORT_REVOKE]: "Report link revoked",
+	[ACTIVITY_ACTION.REPORT_DELETE]: "Report deleted",
 	[ACTIVITY_ACTION.INGESTION_RUN]: "Ingestion queued",
 	[ACTIVITY_ACTION.INGESTION_FINISH]: "Ingestion finished",
 } as const satisfies Record<TActivityAction, string>;
@@ -41,5 +46,7 @@ export const ACTIVITY_ENTITY_LABEL = {
 	[ACTIVITY_RESOURCE_TYPE.ROLE]: "Role",
 	[ACTIVITY_RESOURCE_TYPE.SESSION]: "Session",
 	[ACTIVITY_RESOURCE_TYPE.DATA_SOURCE]: "Data source",
+	[ACTIVITY_RESOURCE_TYPE.PILOT]: "Pilot",
+	[ACTIVITY_RESOURCE_TYPE.REPORT]: "Report",
 	[ACTIVITY_RESOURCE_TYPE.INGESTION]: "Ingestion",
 } as const satisfies Record<TActivityResourceType, string>;

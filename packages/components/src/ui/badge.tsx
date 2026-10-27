@@ -24,6 +24,10 @@ export const Badge: FC<TBadgeProps> = (props): ReactElement => {
 	const { className, variant, ...rest } = props;
 
 	return (
-		<span className={cn(badgeVariants({ variant }), className)} {...rest} />
+		<span
+			data-slot="badge"
+			className={cn(badgeVariants({ variant }), className)}
+			{...rest}
+		/>
 	);
 };

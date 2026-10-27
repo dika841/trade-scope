@@ -9,7 +9,7 @@ import { Guard } from "@app/components/guard/guard";
 import { DASHBOARD_MESSAGE } from "@app/messages";
 import { PERMISSION } from "@app/permissions";
 import { Link } from "@tanstack/react-router";
-import { Plus, Upload } from "lucide-react";
+import { FileText, FlaskConical, Plus, Upload } from "lucide-react";
 import type { FC, ReactElement } from "react";
 
 export const QuickActions: FC = (): ReactElement => (
@@ -33,6 +33,22 @@ export const QuickActions: FC = (): ReactElement => (
 					<Link to="/ingestion">
 						<Upload className="size-4" />
 						{DASHBOARD_MESSAGE.NEW_INGESTION}
+					</Link>
+				</Button>
+			</Guard>
+			<Guard permissions={[PERMISSION.PILOT_MANAGE]}>
+				<Button variant="outline" size="sm" className="justify-start" asChild>
+					<Link to="/pilots/new">
+						<FlaskConical className="size-4" />
+						{DASHBOARD_MESSAGE.NEW_PILOT}
+					</Link>
+				</Button>
+			</Guard>
+			<Guard permissions={[PERMISSION.REPORT_MANAGE]}>
+				<Button variant="outline" size="sm" className="justify-start" asChild>
+					<Link to="/reports/new">
+						<FileText className="size-4" />
+						{DASHBOARD_MESSAGE.NEW_REPORT}
 					</Link>
 				</Button>
 			</Guard>

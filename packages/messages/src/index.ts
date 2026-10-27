@@ -21,6 +21,8 @@ export {
 	roleLabel,
 } from "./permission/labels.ts";
 export { PERMISSION_MESSAGE } from "./permission/message.ts";
+export { PILOT_MESSAGE, PILOT_STATUS_LABEL } from "./pilot/message.ts";
+export { REPORT_MESSAGE } from "./report/message.ts";
 export { ROLE_MESSAGE } from "./role/message.ts";
 export { TABLE_MESSAGE } from "./table/message.ts";
 export { UI_MESSAGE } from "./ui/message.ts";

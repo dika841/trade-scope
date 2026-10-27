@@ -5,3 +5,5 @@ export * from "./tables/custom-role.ts";
 export * from "./tables/data-source.ts";
 export * from "./tables/ingestion.ts";
 export * from "./tables/market.ts";
+export * from "./tables/pilot.ts";
+export * from "./tables/report.ts";

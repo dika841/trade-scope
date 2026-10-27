@@ -6,6 +6,8 @@ export * from "./health/index.ts";
 export * from "./ingestion/index.ts";
 export * from "./market/index.ts";
 export * from "./permission/index.ts";
+export * from "./pilot/index.ts";
+export * from "./report/index.ts";
 export * from "./role/index.ts";
 export * from "./shared/index.ts";
 export * from "./user/index.ts";

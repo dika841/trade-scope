@@ -3,6 +3,8 @@ export const ACTIVITY_RESOURCE_TYPE = {
 	ROLE: "role",
 	SESSION: "session",
 	DATA_SOURCE: "data_source",
+	PILOT: "pilot",
+	REPORT: "report",
 	INGESTION: "ingestion",
 } as const;
 
@@ -21,6 +23,11 @@ export const ACTIVITY_ACTION = {
 	DATA_SOURCE_CREATE: "data_source.create",
 	DATA_SOURCE_UPDATE: "data_source.update",
 	DATA_SOURCE_DELETE: "data_source.delete",
+	PILOT_CREATE: "pilot.create",
+	PILOT_UPDATE: "pilot.update",
+	REPORT_CREATE: "report.create",
+	REPORT_REVOKE: "report.revoke",
+	REPORT_DELETE: "report.delete",
 	INGESTION_RUN: "ingestion.run",
 	INGESTION_FINISH: "ingestion.finish",
 } as const;

@@ -103,6 +103,50 @@ The product page ranks importer markets by the latest year with trade data. Each
 
 A product with no trade data still resolves; the ranking returns `periodYear: null` and an empty list rather than a 404. An unknown HS code or revision is a 404, because the catalog is the anchor.
 
+## Pilots
+
+A pilot request is how a ranked opportunity becomes an internal action: a catalog product, a target market, an owner, notes, and an explicit review state. The API and the web share the same workflow definition, so the UI cannot offer a transition the server refuses.
+
+| Status | Next |
+|---|---|
+| `new` | `in_review` |
+| `in_review` | `approved`, `rejected` |
+| `approved` | `completed` |
+| `rejected` | none |
+| `completed` | none |
+
+| Surface | What it does |
+|---|---|
+| `GET /api/pilots` | Lists requests with status and market filters |
+| `GET /api/pilots/{id}` | Returns one request with its joined product and market |
+| `POST /api/pilots` | Creates a request in `new` |
+| `PATCH /api/pilots/{id}` | Updates the status, owner, or notes |
+| `GET /api/pilots/options` | Returns the owners and markets the form offers |
+| `/pilots` | List, status filter, and the "New pilot" entry point |
+| `/pilots/new` | Product search, market, owner, and notes |
+| `/pilots/{id}` | Summary, workflow state, and the edit form |
+
+`pilot:read` can list and open requests. `pilot:manage` is required to create or update, which is why a viewer sees the list but no create button. Every create and status change writes an `activity_log` row with the product, market, and previous status.
+
+## Reports
+
+A report is an immutable snapshot of one product's market demand and pilot states at the moment it was generated. It is not a live query: later imports or pilot changes do not rewrite an existing report. Each report gets an unguessable share token and a public read-only link, which `report:manage` can revoke or delete.
+
+| Surface | What it does |
+|---|---|
+| `GET /api/reports` | Lists generated reports with their share state |
+| `GET /api/reports/{id}` | Returns the snapshot and its share token to a signed-in reader |
+| `POST /api/reports` | Snapshots the market ranking and pilots for one product |
+| `POST /api/reports/{id}/revoke` | Revokes the public link and keeps the report |
+| `DELETE /api/reports/{id}` | Deletes the report and its link |
+| `GET /api/reports/shared/{token}` | Serves a public snapshot while the link is active |
+| `/reports` | List and the "New report" entry point |
+| `/reports/new` | Product picker and optional title |
+| `/reports/{id}` | Share link, revoke/delete, and the snapshot preview |
+| `/share/reports/{token}` | Public read-only preview, no session |
+
+`report:read` sees the list and the snapshot; `report:manage` creates, revokes, and deletes. The public link returns `404` once revoked or deleted, so a shared URL never exposes a withdrawn report.
+
 ## Ingestion and data sources
 
 Phase 2 adds the write side of the catalog. An ingestion run reads a CSV, validates every row, and upserts `hs_product` and `hs_alias` in one transaction. Rows that fail validation are reported with their line number and the run finishes as `partial`; a run with no valid rows finishes as `failed`. A run carries a `kind`: `catalog` writes the HS catalog, `trade` writes the trade flows behind the market ranking.
