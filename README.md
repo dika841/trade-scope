@@ -129,7 +129,9 @@ A pilot request is how a ranked opportunity becomes an internal action: a catalo
 | `/pilots/new` | Product search, market, owner, and notes |
 | `/pilots/{id}` | Summary, workflow state, and the edit form |
 
-`pilot:read` can list and open requests. `pilot:manage` is required to create or update, which is why a viewer sees the list but no create button. Every create and status change writes an `activity_log` row with the product, market, and previous status. Updates carry the `version` they were read at: the write is a compare-and-set on `(id, version)`, so when two people save the same request the second gets a conflict instead of silently overwriting the first.
+`pilot:read` can list and open requests. `pilot:manage` is required to create or update, which is why a viewer sees the list but no create button. Every create and status change writes an `activity_log` row with the product, market, and previous status; the request page shows those entries as its own timeline. Updates carry the `version` they were read at: the write is a compare-and-set on `(id, version)`, so when two people save the same request the second gets a conflict instead of silently overwriting the first.
+
+When a request is assigned or its status changes, the owner receives an email with the product, current status, and a link back to the request. The mail is sent after the database transaction commits, so an SMTP outage cannot roll back the workflow change; it is logged and skipped instead. The owner is not emailed for their own action.
 
 ## Reports
 

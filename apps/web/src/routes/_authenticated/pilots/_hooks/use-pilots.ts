@@ -25,7 +25,10 @@ export const PILOT_FILTER_ALL = "all";
 
 const routeApi = getRouteApi("/_authenticated/pilots/");
 
-const pilotKeys = (): readonly (readonly unknown[])[] => [orpc.pilot.key()];
+const pilotKeys = (): readonly (readonly unknown[])[] => [
+	orpc.pilot.key(),
+	orpc.activity.key(),
+];
 
 const filterToSearch = (value: string): string | undefined =>
 	match(value)

@@ -9,4 +9,10 @@ export const MAIL_MESSAGE = {
 		"This link expires in one hour. If you did not ask for it, you can safely ignore this email.",
 	SEND_FAILED: "Could not send an email.",
 	PASSWORD_RESET_FAILED: "Could not send the password reset email.",
+	PILOT_ASSIGNED_SUBJECT: "Pilot assigned:",
+	PILOT_UPDATED_SUBJECT: "Pilot updated:",
+	PILOT_ASSIGNED_BODY: "You were assigned a pilot request.",
+	PILOT_UPDATED_BODY: "A pilot request you own was updated.",
+	PILOT_STATUS_LINE: "Status:",
+	PILOT_ACTION: "Open pilot",
 } as const;

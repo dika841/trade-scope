@@ -59,6 +59,11 @@ export const PILOT_MESSAGE = {
 	UPDATED_AT: "Updated",
 	NO_TRANSITION: "This request is in a final state.",
 	OWNER_NONE: "Unassigned",
+	ACTIVITY_TITLE: "Activity",
+	ACTIVITY_EMPTY: "No activity recorded yet.",
+	COLUMN_WHEN: "When",
+	COLUMN_ACTOR: "Actor",
+	COLUMN_ACTION: "Action",
 } as const;
 
 export const PILOT_STATUS_LABEL = {

@@ -38,6 +38,7 @@ export type TActivitySort = (typeof ACTIVITY_SORT)[keyof typeof ACTIVITY_SORT];
 export const activityListInputSchema = paginationSchema.extend({
 	action: z.string().optional(),
 	resourceType: z.string().optional(),
+	resourceId: z.string().optional(),
 	actorId: z.string().optional(),
 	sortBy: z
 		.enum([

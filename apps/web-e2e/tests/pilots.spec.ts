@@ -68,6 +68,16 @@ test.describe("pilot admin flow", () => {
 		await expect(page.locator('[data-slot="badge"]')).toHaveText(
 			PILOT_MESSAGE.STATUS_IN_REVIEW,
 		);
+
+		await expect(
+			page.getByRole("main").getByText(PILOT_MESSAGE.ACTIVITY_TITLE),
+		).toBeVisible();
+		await expect(
+			page.getByRole("main").getByText("Pilot created", { exact: true }),
+		).toBeVisible();
+		await expect(
+			page.getByRole("main").getByText("Pilot updated", { exact: true }),
+		).toBeVisible();
 	});
 
 	test("keeps the list read-only for a viewer", async ({

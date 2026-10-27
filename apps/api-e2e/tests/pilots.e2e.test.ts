@@ -124,6 +124,37 @@ describe("pilot endpoints", () => {
 		expect(second.status).toBe(STATUS_CONFLICT);
 	});
 
+	it("returns the activity timeline for one pilot", async (): Promise<void> => {
+		const created = await createPilot("E2E activity pilot");
+		await apiJson<TPilot>({
+			path: `/pilots/${created.id}`,
+			cookie: adminCookie,
+			method: "PATCH",
+			body: {
+				id: created.id,
+				version: created.version,
+				status: PILOT_STATUS.IN_REVIEW,
+			},
+		});
+
+		const activity = await apiJson<{
+			items: readonly { action: string; resourceId: string }[];
+		}>({
+			path: `/activity?resourceType=pilot&resourceId=${created.id}&pageSize=50`,
+			cookie: adminCookie,
+		});
+
+		expect(
+			activity.items.some((entry) => entry.action === "pilot.create"),
+		).toBe(true);
+		expect(
+			activity.items.some((entry) => entry.action === "pilot.update"),
+		).toBe(true);
+		expect(
+			activity.items.every((entry) => entry.resourceId === created.id),
+		).toBe(true);
+	});
+
 	it("refuses an analyst creating a pilot", async (): Promise<void> => {
 		const response = await apiFetch({
 			path: "/pilots",

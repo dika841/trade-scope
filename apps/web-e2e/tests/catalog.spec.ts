@@ -40,9 +40,7 @@ test("searches for a product from the landing page and opens its detail", async 
 	await expect(page.getByText(/Period: 2022/)).toBeVisible();
 
 	const downloadPromise = page.waitForEvent("download");
-	await page
-		.getByRole("button", { name: MARKET_MESSAGE.DOWNLOAD_CSV })
-		.click();
+	await page.getByRole("button", { name: MARKET_MESSAGE.DOWNLOAD_CSV }).click();
 	const download = await downloadPromise;
 	expect(download.suggestedFilename()).toBe("trade-scope-090121-2022.csv");
 });

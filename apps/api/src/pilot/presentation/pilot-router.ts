@@ -1,4 +1,5 @@
 import { PERMISSION } from "@app/permissions";
+import { PILOT_MAIL_KIND } from "@app/mail";
 import {
 	pilotCreateInputSchema,
 	pilotIdInputSchema,
@@ -18,6 +19,7 @@ import {
 import { pilotCreate } from "#/pilot/application/pilot-create.ts";
 import { pilotGet } from "#/pilot/application/pilot-get.ts";
 import { pilotList } from "#/pilot/application/pilot-list.ts";
+import { pilotNotify } from "#/pilot/application/pilot-notify.ts";
 import { pilotOptions } from "#/pilot/application/pilot-options.ts";
 import { pilotUpdate } from "#/pilot/application/pilot-update.ts";
 
@@ -47,23 +49,44 @@ const pilotRouter = {
 		.route({ method: HTTP_METHOD.POST, path: ROUTE_PATH.PILOTS })
 		.input(pilotCreateInputSchema)
 		.output(pilotSchema)
-		.handler(({ input, context }) =>
-			effectRunTransactional(
+		.handler(async ({ input, context }) => {
+			const run = await effectRunTransactional(
 				context.runtime,
 				pilotCreate(input, context.session!.user.id),
-			),
-		),
+			);
+			await effectRun(
+				context.runtime,
+				pilotNotify(
+					{ id: run.id, kind: PILOT_MAIL_KIND.ASSIGNED },
+					context.session!.user.id,
+				),
+			);
+
+			return run;
+		}),
 
 	update: permissionRequire(PERMISSION.PILOT_MANAGE)
 		.route({ method: HTTP_METHOD.PATCH, path: ROUTE_PATH.PILOT })
 		.input(pilotUpdateInputSchema)
 		.output(pilotSchema)
-		.handler(({ input, context }) =>
-			effectRunTransactional(
+		.handler(async ({ input, context }) => {
+			const run = await effectRunTransactional(
 				context.runtime,
 				pilotUpdate(input, context.session!.user.id),
-			),
-		),
+			);
+
+			if (input.status !== undefined || input.ownerId !== undefined) {
+				await effectRun(
+					context.runtime,
+					pilotNotify(
+						{ id: run.id, kind: PILOT_MAIL_KIND.UPDATED },
+						context.session!.user.id,
+					),
+				);
+			}
+
+			return run;
+		}),
 };
 
 export type TPilotRouter = typeof pilotRouter;

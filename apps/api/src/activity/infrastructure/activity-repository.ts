@@ -77,6 +77,7 @@ export const activityRepoLayer = Layer.effect(
 			pageSize,
 			action,
 			resourceType,
+			resourceId,
 			actorId,
 			sortBy,
 			sortDir,
@@ -84,6 +85,7 @@ export const activityRepoLayer = Layer.effect(
 			const where = and(
 				optionalEq(activityLog.action, action),
 				optionalEq(activityLog.resourceType, resourceType),
+				optionalEq(activityLog.resourceId, resourceId),
 				optionalEq(activityLog.actorId, actorId),
 			);
 

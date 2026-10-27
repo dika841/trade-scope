@@ -3,7 +3,10 @@ import type { TMailMessage, TMailer } from "./mailer.ts";
 
 export const MAIL_EVENT = { SEND_FAILED: "mail.send.failed" } as const;
 
-export const MAIL_TEMPLATE = { PASSWORD_RESET: "password-reset" } as const;
+export const MAIL_TEMPLATE = {
+	PASSWORD_RESET: "password-reset",
+	PILOT: "pilot",
+} as const;
 
 export type TMailTemplate = (typeof MAIL_TEMPLATE)[keyof typeof MAIL_TEMPLATE];
 

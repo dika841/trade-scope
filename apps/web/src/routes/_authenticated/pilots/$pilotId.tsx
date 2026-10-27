@@ -12,6 +12,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { FC, ReactElement, ReactNode } from "react";
 import { checkRoutePermissions } from "#/libs/auth/route-guard.ts";
 import { FormPage } from "#/routes/_authenticated/_components/form-page.tsx";
+import { PilotActivity } from "#/routes/_authenticated/pilots/_components/pilot-activity.tsx";
 import { PilotEditForm } from "#/routes/_authenticated/pilots/_components/pilot-edit-form.tsx";
 import { PilotStatusBadge } from "#/routes/_authenticated/pilots/_components/status-badge.tsx";
 import {
@@ -94,6 +95,10 @@ const PilotDetailPage: FC = (): ReactElement => {
 					</div>
 				</CardContent>
 			</Card>
+
+			<Guard permissions={[PERMISSION.ACTIVITY_READ]}>
+				<PilotActivity pilotId={pilot.id} />
+			</Guard>
 
 			<Guard permissions={[PERMISSION.PILOT_MANAGE]}>
 				<PilotEditForm key={pilot.id} pilot={pilot} options={options} />
