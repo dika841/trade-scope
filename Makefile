@@ -3,7 +3,8 @@ COMPOSE := docker compose -f docker-compose.dev.yml
 .PHONY: help install setup services services-stop services-logs dev up \
 	api web worker db-migrate db-seed db-generate db-push db-studio \
 	check lint format test build ci browsers e2e e2e-api e2e-web clean \
-	image image-run staging-up staging-down staging-migrate
+	image image-run staging-up staging-down staging-migrate \
+	observability observability-stop observability-logs drill-restore
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -66,6 +67,18 @@ staging-migrate: ## Apply migrations against the staging database
 
 staging-down: ## Stop the staging stack, keeping its volumes
 	docker compose -f docker-compose.staging.yml --env-file .env.staging down
+
+observability: ## Start Prometheus, Grafana, Loki, Tempo and Alertmanager
+	docker compose -f docker-compose.observability.yml up -d
+
+observability-stop: ## Stop the observability stack
+	docker compose -f docker-compose.observability.yml down
+
+observability-logs: ## Tail the observability stack logs
+	docker compose -f docker-compose.observability.yml logs -f
+
+drill-restore: ## Restore a live Postgres dump into a scratch database
+	./scripts/restore-drill.sh
 
 check: ## Biome check across the workspace
 	moon run :check

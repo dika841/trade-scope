@@ -75,3 +75,7 @@ Spans are not flushed on shutdown. `TTracing.shutdown` exists and nothing calls 
 Spans cover the HTTP seam and nothing below it. There is no instrumentation on Postgres, Redis or the broker, so a trace tells you which request was slow but not which query made it slow. Adding it means the OpenTelemetry auto-instrumentations, which patch modules as they load and need loader hooks to work under ESM. That is a real piece of work rather than a line of configuration, and it is worth doing when a slow request stops being obvious from the code.
 
 Job outcomes are not counted here either. The worker has no HTTP surface to scrape, and queue depth, retries and dead letters are already visible in the broker's own metrics, which is where the queue alerts in [alerting.md](alerting.md) read them from. A counter in the application would be a second, less reliable copy.
+
+## The local stack
+
+[observability.md](observability.md) runs Prometheus, Grafana, Tempo, Loki, Promtail, and Alertmanager beside the dev services. Prometheus scrapes this endpoint, Grafana provisions the dashboard, and Tempo receives OTLP traces once `TRACING_ENDPOINT` points at `http://127.0.0.1:4318/v1/traces`. That closes the "nowhere to send it" gap on a laptop. A staging host still has to be provisioned; [staging.md](staging.md) is the checklist.

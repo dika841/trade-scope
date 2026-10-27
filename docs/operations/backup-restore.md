@@ -48,9 +48,21 @@ Quarterly, and before any release that carries a destructive migration:
 
 Step 5 is the output. Those two numbers are the real recovery time and recovery point; anything written in a plan without them is a guess.
 
+## The local drill
+
+`make drill-restore` runs the same shape against the dev Postgres container: it dumps the live `app` database, restores it into a scratch database, counts the public tables and users, drops the scratch database, and prints the wall-clock time.
+
+```sh
+make drill-restore
+# restore drill passed: 14 tables, 4 users restored in 1s
+# recovery point: the live dump taken at the start of this run
+```
+
+The script is `scripts/restore-drill.sh`. It refuses nothing and changes nothing outside the scratch database named `app_restore_drill`. A local pass proves the procedure and the tooling; it does not replace the staging drill, which restores a real nightly dump and then starts an API against it.
+
 | Objective | Target | Last measured |
 |---|---|---|
-| Recovery time | 1 hour | Not yet measured |
-| Recovery point | 24 hours without WAL, 5 minutes with it | Not yet measured |
+| Recovery time | 1 hour | Not yet measured on staging; local drill 1s on 2026-10-27 |
+| Recovery point | 24 hours without WAL, 5 minutes with it | Not yet measured on staging; local drill uses a live dump |
 
-Fill the last column in after the first drill. An unmeasured target is a guess, and this table is deliberately honest that nobody has run it yet.
+Fill the staging column in after the first staging drill. An unmeasured target is a guess, and this table is deliberately honest that production and staging have not been exercised yet.

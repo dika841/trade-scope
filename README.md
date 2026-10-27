@@ -223,6 +223,8 @@ Every command goes through `make` or `moon`; nothing shells into a package direc
 make help                             # every target, with a one-line description
 make setup                            # services + migrate + seed
 make services | services-stop         # docker: postgres, redis, rabbitmq, mailpit
+make observability                    # Prometheus, Grafana, Loki, Tempo, Alertmanager
+make drill-restore                    # restore a live dump into a scratch database
 make api | web | worker               # run one process
 make db-migrate | db-seed | db-studio # database
 make check | lint | test | build      # quality gates
@@ -268,5 +270,5 @@ Releases are automatic and there is nothing to run by hand: every merge to `main
 | [.claude/skills/ts-conventions/SKILL.md](.claude/skills/ts-conventions/SKILL.md) | The TypeScript ruleset, in full |
 | [docs/adding-a-module.md](docs/adding-a-module.md) | Every touchpoint a new module, endpoint or permission has to reach |
 | [docs/effect-services.md](docs/effect-services.md) | Why a service is a const and an error is a class |
-| [docs/operations/](docs/operations/) | Deploying, backups, runbooks, alerting, credentials, retention, logging |
+| [docs/operations/](docs/operations/) | Deploying, staging, observability, backups, runbooks, alerting, credentials, retention, logging |
 | [docs/kpi/](docs/kpi/) | Where this repository stands against an external engineering standards rubric |

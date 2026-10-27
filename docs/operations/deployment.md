@@ -32,17 +32,17 @@ Step 2 before step 3 means the schema must stay backward compatible with the cur
 
 ## Staging
 
-`docker-compose.staging.yml` runs the same image as production against Neon Postgres, Upstash Redis and a RabbitMQ container, and `.env.staging.example` lists what it needs. `make staging-up`, `make staging-migrate` and `make staging-down` drive it.
+`docker-compose.staging.yml` runs the same image as production against Neon Postgres, Upstash Redis and a RabbitMQ container, and `.env.staging.example` lists what it needs. `make staging-up`, `make staging-migrate` and `make staging-down` drive it. The full provisioning checklist is [staging.md](staging.md).
 
 **What is here is the specification, not a running environment.** Provisioning a host, pointing a domain at it, and terminating TLS in front of it are infrastructure decisions with a cost attached, and they are not code. Nothing in this repository can make that choice for you. What it can do is make sure that once you have a host, the environment is already described.
 
 Three things the compose file encodes on purpose:
 
-- **`STANDARD_IMAGE` is pinned to a tag**, not `latest`. A staging environment that silently drifts to a newer build cannot be used to rehearse a deploy, because you would not know which build you rehearsed
+- **`TRADE_SCOPE_IMAGE` is pinned to a tag**, not `latest`. A staging environment that silently drifts to a newer build cannot be used to rehearse a deploy, because you would not know which build you rehearsed
 - **The api port binds to `127.0.0.1`. The database and cache are managed services outside the compose network; their credentials are not shared with production.** TLS terminates in a reverse proxy in front, which is also what makes `RATE_LIMIT_TRUSTED_PROXY_IPS` meaningful. Exposing the port publicly would defeat both
 - **Secrets are not shared with production.** Staging exists to be broken, so its credentials must not be worth stealing
 
-Staging is where the things that are currently unrehearsed get rehearsed: a rollback to the previous image tag, and the restore drill in [backup-restore.md](backup-restore.md). Both are written down and neither has been run, because until now there has been nowhere to run them.
+Staging is where the things that are currently unrehearsed get rehearsed: a rollback to the previous image tag, the restore drill in [backup-restore.md](backup-restore.md), and the observability stack in [observability.md](observability.md). The local restore drill has been run; the staging drill and the rollback rehearsal still need a staging host.
 
 ## Probes
 

@@ -5,6 +5,8 @@ What it takes to run this stack somewhere other than a laptop, and what to do wh
 | Document | Answers |
 |---|---|
 | [deployment.md](deployment.md) | How a commit becomes a running process, and how to roll it back |
+| [staging.md](staging.md) | The checklist that turns a host into a staging environment |
+| [observability.md](observability.md) | The local Prometheus, Grafana, Loki, Tempo, and Alertmanager stack |
 | [backup-restore.md](backup-restore.md) | What is backed up, how often, and how a restore is proven to work |
 | [runbooks.md](runbooks.md) | What to do when a specific thing breaks |
 | [alerting.md](alerting.md) | What pages someone, at what threshold, and who |

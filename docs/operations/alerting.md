@@ -33,7 +33,7 @@ The backup alert fires at 26 hours rather than 24 so that a nightly job which me
 
 ## What is not wired yet
 
-The error rate and latency alerts now have a source. `GET /metrics` serves `http_requests_total` and `http_request_duration_seconds` labelled by method, matched route and status, so the 2% threshold above is a query rather than a log search. See [metrics.md](metrics.md) for what is exposed and the token that guards it. What is still missing is a Prometheus that scrapes it, which is a hosting decision rather than code.
+The error rate and latency alerts now have a source. `GET /metrics` serves `http_requests_total` and `http_request_duration_seconds` labelled by method, matched route and status, so the 2% threshold above is a query rather than a log search. [observability.md](observability.md) runs the Prometheus that scrapes it, the Alertmanager that receives the rules, and the Grafana dashboard that reads the result. Staging is still a host decision: [staging.md](staging.md) is the checklist, and the local Alertmanager receiver is deliberately silent until a real pager is configured.
 
 Readiness and liveness alerts stay HTTP probes against `/ready` and `/healthz`, because a process too sick to answer a probe is also too sick to be scraped.
 
