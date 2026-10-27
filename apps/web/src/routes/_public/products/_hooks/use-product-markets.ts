@@ -5,6 +5,7 @@ import { orpc } from "#/libs/orpc/client.ts";
 type TProductMarketsInput = {
 	hsCode: string;
 	revision: string;
+	periodYear?: number;
 };
 
 export const useProductMarkets = (input: TProductMarketsInput) =>

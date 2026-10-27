@@ -1,3 +1,4 @@
+import { Button } from "@app/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -20,7 +21,9 @@ import {
 	REPORT_MESSAGE,
 } from "@app/messages";
 import type { TSharedReport } from "@app/schemas";
+import { Download } from "lucide-react";
 import type { FC, ReactElement } from "react";
+import { downloadMarketCsv } from "#/libs/csv/market-csv.ts";
 import { formatHsCode } from "#/routes/_public/search/_utils/format-hs-code.ts";
 
 type TReportPreviewProps = {
@@ -44,6 +47,26 @@ export const ReportPreview: FC<TReportPreviewProps> = (props): ReactElement => {
 						{REPORT_MESSAGE.GENERATED_AT}: {formatDate(props.report.createdAt)}
 					</p>
 				</CardHeader>
+				{market.periodYear !== null && market.items.length > 0 && (
+					<CardContent>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() =>
+								downloadMarketCsv({
+									title: props.report.title,
+									hsCode: props.report.hsCode,
+									hsRevision: props.report.hsRevision,
+									product: props.report.productDescription,
+									market,
+								})
+							}
+						>
+							<Download className="size-4" />
+							{MARKET_MESSAGE.DOWNLOAD_CSV}
+						</Button>
+					</CardContent>
+				)}
 			</Card>
 
 			<Card>

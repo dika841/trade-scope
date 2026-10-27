@@ -1,5 +1,6 @@
 import { CATALOG_MESSAGE, MARKET_MESSAGE } from "@app/messages";
 import { expect, test } from "@playwright/test";
+import { selectOption } from "../support/select.ts";
 
 test("searches for a product from the landing page and opens its detail", async ({
 	page,
@@ -31,6 +32,19 @@ test("searches for a product from the landing page and opens its detail", async 
 	await expect(page.getByText(MARKET_MESSAGE.TITLE)).toBeVisible();
 	await expect(page.getByText("United States")).toBeVisible();
 	await expect(page.getByText("Demo trade dataset")).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: MARKET_MESSAGE.DOWNLOAD_CSV }),
+	).toBeVisible();
+
+	await selectOption(page, page.getByLabel(MARKET_MESSAGE.PERIOD), "2022");
+	await expect(page.getByText(/Period: 2022/)).toBeVisible();
+
+	const downloadPromise = page.waitForEvent("download");
+	await page
+		.getByRole("button", { name: MARKET_MESSAGE.DOWNLOAD_CSV })
+		.click();
+	const download = await downloadPromise;
+	expect(download.suggestedFilename()).toBe("trade-scope-090121-2022.csv");
 });
 
 test("keeps the public search available without a session", async ({

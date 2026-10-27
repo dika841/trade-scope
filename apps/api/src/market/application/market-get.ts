@@ -21,6 +21,9 @@ export const marketGet = Effect.fn("marketGet")(function* (
 		hsRevision: row.product.hsRevision,
 		periodYear: row.periodYear,
 		previousPeriodYear: row.periodYear === null ? null : row.periodYear - 1,
+		availablePeriods: row.availablePeriods,
+		lastImportedAt:
+			row.lastImportedAt === null ? null : row.lastImportedAt.toISOString(),
 		totalValueUsd: row.totalValueUsd,
 		items: row.items.map((item) => ({
 			importerIso2: item.importerIso2,

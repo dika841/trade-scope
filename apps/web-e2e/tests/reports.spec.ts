@@ -1,4 +1,8 @@
-import { DASHBOARD_MESSAGE, REPORT_MESSAGE } from "@app/messages";
+import {
+	DASHBOARD_MESSAGE,
+	MARKET_MESSAGE,
+	REPORT_MESSAGE,
+} from "@app/messages";
 import { expect, type Page, test } from "@playwright/test";
 import { confirmAction } from "../support/confirm.ts";
 import { SEED_CREDENTIALS } from "../support/credentials.ts";
@@ -62,6 +66,9 @@ test.describe("report admin flow", () => {
 		await shared.goto(shareUrl);
 		await expect(shared.getByText("Web E2E report").first()).toBeVisible();
 		await expect(shared.getByText("United States").first()).toBeVisible();
+		await expect(
+			shared.getByRole("button", { name: MARKET_MESSAGE.DOWNLOAD_CSV }),
+		).toBeVisible();
 
 		await page
 			.getByRole("button", { name: REPORT_MESSAGE.REVOKE_ACTION })

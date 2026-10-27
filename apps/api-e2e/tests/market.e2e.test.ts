@@ -30,6 +30,33 @@ describe("market demand endpoints", () => {
 		expect(result.items).toHaveLength(2);
 	});
 
+	it("filters by an explicit period and reports the available years", async (): Promise<void> => {
+		const result = await apiJson<TMarketDemand>({
+			path: "/products/090121/markets?revision=HS2022&periodYear=2022",
+		});
+
+		expect(result.periodYear).toBe(2022);
+		expect(result.previousPeriodYear).toBe(2021);
+		expect(result.availablePeriods).toEqual(
+			expect.arrayContaining([2023, 2022]),
+		);
+		expect(result.items[0]?.importerIso2).toBe("US");
+		expect(result.lastImportedAt).not.toBeNull();
+	});
+
+	it("returns an empty ranking for a year with no rows", async (): Promise<void> => {
+		const result = await apiJson<TMarketDemand>({
+			path: "/products/090121/markets?revision=HS2022&periodYear=2019",
+		});
+
+		expect(result.periodYear).toBe(2019);
+		expect(result.items).toEqual([]);
+		expect(result.totalValueUsd).toBe(0);
+		expect(result.availablePeriods).toEqual(
+			expect.arrayContaining([2023, 2022]),
+		);
+	});
+
 	it("returns 404 for a product that is not in the catalog", async (): Promise<void> => {
 		const response = await apiFetch({
 			path: "/products/999999/markets?revision=HS2022",

@@ -5,6 +5,7 @@ export const MARKET_DEFAULT_LIMIT = 10;
 export const MARKET_MAX_LIMIT = 50;
 
 export const marketInputSchema = catalogProductInputSchema.extend({
+	periodYear: z.coerce.number().int().min(1900).max(2100).optional(),
 	limit: z.coerce
 		.number()
 		.int()
@@ -36,6 +37,8 @@ export const marketDemandSchema = z.object({
 	hsRevision: z.string(),
 	periodYear: z.number().int().nullable(),
 	previousPeriodYear: z.number().int().nullable(),
+	availablePeriods: z.array(z.number().int()).readonly().default([]),
+	lastImportedAt: z.iso.datetime().nullable().default(null),
 	totalValueUsd: z.number().nonnegative(),
 	items: z.array(marketItemSchema).readonly(),
 	provenance: z.array(marketProvenanceSchema).readonly(),

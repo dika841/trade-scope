@@ -1,3 +1,4 @@
+import { Button } from "@app/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -6,6 +7,13 @@ import {
 	CardTitle,
 } from "@app/components/ui/card";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@app/components/ui/select";
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -13,16 +21,18 @@ import {
 	TableHeader,
 	TableRow,
 } from "@app/components/ui/table";
-import { formatDate, formatUsdCompact } from "@app/format";
+import { formatDate, formatDateTime, formatUsdCompact } from "@app/format";
 import { MARKET_MESSAGE } from "@app/messages";
 import type { TMarketItem } from "@app/schemas";
-import { Loader2 } from "lucide-react";
-import type { FC, ReactElement } from "react";
+import { Download, Loader2 } from "lucide-react";
+import { useState, type FC, type ReactElement } from "react";
+import { downloadMarketCsv } from "#/libs/csv/market-csv.ts";
 import { useProductMarkets } from "#/routes/_public/products/_hooks/use-product-markets.ts";
 
 type TMarketRankingCardProps = {
 	hsCode: string;
 	revision: string;
+	product: string;
 };
 
 const growthLabel = (value: number | null): string =>
@@ -65,9 +75,11 @@ const MarketRow: FC<{ item: TMarketItem; rank: number }> = (
 export const MarketRankingCard: FC<TMarketRankingCardProps> = (
 	props,
 ): ReactElement => {
+	const [periodYear, setPeriodYear] = useState<number | undefined>(undefined);
 	const markets = useProductMarkets({
 		hsCode: props.hsCode,
 		revision: props.revision,
+		periodYear,
 	});
 
 	if (markets.isPending) {
@@ -112,18 +124,62 @@ export const MarketRankingCard: FC<TMarketRankingCardProps> = (
 				<CardDescription>{MARKET_MESSAGE.SUBTITLE}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">
-				<div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 text-sm">
-					<span>
-						{MARKET_MESSAGE.PERIOD}: {data.periodYear}
-					</span>
-					<span>
-						{MARKET_MESSAGE.TOTAL}: {formatUsdCompact(data.totalValueUsd)}
-					</span>
-					{data.previousPeriodYear !== null && (
+				<div className="flex flex-wrap items-end justify-between gap-3">
+					<div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 text-sm">
 						<span>
-							{MARKET_MESSAGE.PREVIOUS_PERIOD}: {data.previousPeriodYear}
+							{MARKET_MESSAGE.PERIOD}: {data.periodYear}
 						</span>
-					)}
+						<span>
+							{MARKET_MESSAGE.TOTAL}: {formatUsdCompact(data.totalValueUsd)}
+						</span>
+						{data.previousPeriodYear !== null && (
+							<span>
+								{MARKET_MESSAGE.PREVIOUS_PERIOD}: {data.previousPeriodYear}
+							</span>
+						)}
+						{data.lastImportedAt !== null && (
+							<span>
+								{MARKET_MESSAGE.UPDATED}: {formatDateTime(data.lastImportedAt)}
+							</span>
+						)}
+					</div>
+					<div className="flex items-center gap-2">
+						{data.availablePeriods.length > 1 && (
+							<Select
+								value={String(data.periodYear)}
+								onValueChange={(value) => setPeriodYear(Number(value))}
+							>
+								<SelectTrigger
+									className="w-28"
+									aria-label={MARKET_MESSAGE.PERIOD}
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{data.availablePeriods.map((year) => (
+										<SelectItem key={year} value={String(year)}>
+											{year}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() =>
+								downloadMarketCsv({
+									hsCode: props.hsCode,
+									hsRevision: props.revision,
+									product: props.product,
+									market: data,
+								})
+							}
+						>
+							<Download className="size-4" />
+							{MARKET_MESSAGE.DOWNLOAD_CSV}
+						</Button>
+					</div>
 				</div>
 				<Table>
 					<TableHeader>

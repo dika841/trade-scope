@@ -96,10 +96,13 @@ The first public slice is an HS catalog search. It works without a session:
 
 The product page ranks importer markets by the latest year with trade data. Each row carries the import value, year-on-year growth (or `New` when there is no prior year), and the market's share of total imports for that product. The response also carries provenance — the source, its URL, and when it was retrieved — so no figure appears without the period and source behind it.
 
+The card can switch between available periods, shows when the data was last imported, and downloads the current ranking as CSV. The CSV repeats the product and period columns, and quotes text fields while leaving numbers numeric.
+
 | Surface | What it does |
 |---|---|
-| `GET /api/products/{hsCode}/markets?revision=HS2022&limit=10` | Returns the latest period, total imports, ranked markets, and provenance |
-| `/products/{hsCode}?revision=HS2022` | Renders the ranking card, its empty state, and the source footnote |
+| `GET /api/products/{hsCode}/markets?revision=HS2022&limit=10` | Returns the latest period, total imports, ranked markets, available periods, and provenance |
+| `GET /api/products/{hsCode}/markets?revision=HS2022&periodYear=2022` | Returns the same shape for a selected period |
+| `/products/{hsCode}?revision=HS2022` | Renders the ranking card, period selector, CSV download, and source footnote |
 
 A product with no trade data still resolves; the ranking returns `periodYear: null` and an empty list rather than a 404. An unknown HS code or revision is a 404, because the catalog is the anchor.
 
@@ -145,7 +148,7 @@ A report is an immutable snapshot of one product's market demand and pilot state
 | `/reports/{id}` | Share link, revoke/delete, and the snapshot preview |
 | `/share/reports/{token}` | Public read-only preview, no session |
 
-`report:read` sees the list and the snapshot; `report:manage` creates, revokes, and deletes. The public link returns `404` once revoked or deleted, so a shared URL never exposes a withdrawn report.
+The preview carries a CSV download of the snapshot's market table, available on both the internal page and the public link. `report:read` sees the list and the snapshot; `report:manage` creates, revokes, and deletes. The public link returns `404` once revoked or deleted, so a shared URL never exposes a withdrawn report.
 
 ## Ingestion and data sources
 

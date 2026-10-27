@@ -10,6 +10,8 @@ export const MARKET_MESSAGE = {
 	PERIOD: "Period",
 	TOTAL: "Total imports",
 	PREVIOUS_PERIOD: "Compared with",
+	DOWNLOAD_CSV: "Download CSV",
+	UPDATED: "Data updated",
 	COLUMN_RANK: "#",
 	COLUMN_MARKET: "Market",
 	COLUMN_VALUE: "Import value",

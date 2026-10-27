@@ -28,6 +28,8 @@ const ROW: TReportRow = {
 			hsRevision: "HS2022",
 			periodYear: 2023,
 			previousPeriodYear: 2022,
+			availablePeriods: [2023, 2022],
+			lastImportedAt: "2024-02-01T00:00:00.000Z",
 			totalValueUsd: 100,
 			items: [],
 			provenance: [],

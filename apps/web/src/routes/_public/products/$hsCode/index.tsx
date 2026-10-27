@@ -129,7 +129,12 @@ const ProductPage: FC = (): ReactElement => {
 				</CardContent>
 			</Card>
 
-			<MarketRankingCard hsCode={detail.hsCode} revision={detail.hsRevision} />
+			<MarketRankingCard
+				key={`${detail.hsCode}:${detail.hsRevision}`}
+				hsCode={detail.hsCode}
+				revision={detail.hsRevision}
+				product={detail.description}
+			/>
 		</div>
 	);
 };

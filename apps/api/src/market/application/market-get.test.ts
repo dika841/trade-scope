@@ -25,6 +25,8 @@ const run = (row: TMarketDemandRow): Promise<TMarketDemand> =>
 const ROW: TMarketDemandRow = {
 	product: { hsCode: "090121", hsRevision: "HS2022" },
 	periodYear: 2023,
+	availablePeriods: [2023, 2022],
+	lastImportedAt: new Date("2024-02-01T00:00:00Z"),
 	totalValueUsd: 2_000,
 	items: [
 		{
@@ -55,6 +57,8 @@ describe("marketGet", () => {
 
 		expect(result.periodYear).toBe(2023);
 		expect(result.previousPeriodYear).toBe(2022);
+		expect(result.availablePeriods).toEqual([2023, 2022]);
+		expect(result.lastImportedAt).toBe("2024-02-01T00:00:00.000Z");
 		expect(result.totalValueUsd).toBe(2_000);
 		expect(result.items[0]).toEqual({
 			importerIso2: "US",
@@ -73,6 +77,8 @@ describe("marketGet", () => {
 		const result = await run({
 			product: { hsCode: "090121", hsRevision: "HS2022" },
 			periodYear: null,
+			availablePeriods: [],
+			lastImportedAt: null,
 			totalValueUsd: 0,
 			items: [],
 			provenance: [],
@@ -90,6 +96,8 @@ describe("marketGet", () => {
 					repoLayer({
 						product: null,
 						periodYear: null,
+						availablePeriods: [],
+						lastImportedAt: null,
 						totalValueUsd: 0,
 						items: [],
 						provenance: [],

@@ -20,6 +20,8 @@ export type TMarketProvenanceRow = {
 export type TMarketDemandRow = {
 	product: { hsCode: string; hsRevision: string } | null;
 	periodYear: number | null;
+	availablePeriods: readonly number[];
+	lastImportedAt: Date | null;
 	totalValueUsd: number;
 	items: readonly TMarketItemRow[];
 	provenance: readonly TMarketProvenanceRow[];

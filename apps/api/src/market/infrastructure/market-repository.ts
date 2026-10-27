@@ -1,4 +1,4 @@
-import { and, eq, max, sql } from "drizzle-orm";
+import { and, desc, eq, max, sql } from "drizzle-orm";
 import { Effect, Layer } from "effect";
 import {
 	MarketRepo,
@@ -18,6 +18,8 @@ const empty = (
 ): TMarketDemandRow => ({
 	product,
 	periodYear: null,
+	availablePeriods: [],
+	lastImportedAt: null,
 	totalValueUsd: 0,
 	items: [],
 	provenance: [],
@@ -52,8 +54,20 @@ export const marketRepoLayer = Layer.effect(
 						return empty(null);
 					}
 
-					const [latest] = await connection
-						.select({ value: max(tradeFlow.periodYear) })
+					const periodRows = await connection
+						.selectDistinct({ periodYear: tradeFlow.periodYear })
+						.from(tradeFlow)
+						.where(
+							and(
+								eq(tradeFlow.hsCode, hsCode),
+								eq(tradeFlow.hsRevision, input.revision),
+							),
+						)
+						.orderBy(desc(tradeFlow.periodYear));
+
+					const availablePeriods = periodRows.map((row) => row.periodYear);
+					const [lastRow] = await connection
+						.select({ value: max(tradeFlow.updatedAt) })
 						.from(tradeFlow)
 						.where(
 							and(
@@ -61,11 +75,16 @@ export const marketRepoLayer = Layer.effect(
 								eq(tradeFlow.hsRevision, input.revision),
 							),
 						);
-
-					const periodYear = latest?.value ?? null;
+					const lastImportedAt =
+						(lastRow?.value as Date | null | undefined) ?? null;
+					const periodYear = input.periodYear ?? availablePeriods[0] ?? null;
 
 					if (periodYear === null) {
-						return empty(product);
+						return {
+							...empty(product),
+							availablePeriods,
+							lastImportedAt,
+						};
 					}
 
 					const currentRows = await connection
@@ -141,6 +160,8 @@ export const marketRepoLayer = Layer.effect(
 					return {
 						product,
 						periodYear,
+						availablePeriods,
+						lastImportedAt,
 						totalValueUsd,
 						items: current.slice(0, input.limit).map((row) => ({
 							...row,
