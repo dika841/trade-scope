@@ -38,6 +38,7 @@ export const pilotSchema = baseSchema(z.uuid()).extend({
 	marketIso2: z.string().length(PILOT_MARKET_LENGTH),
 	marketName: z.string(),
 	status: z.enum(PILOT_STATUS),
+	version: z.number().int().min(0),
 	ownerId: z.string().nullable(),
 	ownerName: z.string().nullable(),
 	ownerEmail: z.email().nullable(),
@@ -100,6 +101,7 @@ export type TPilotCreateInput = z.infer<typeof pilotCreateInputSchema>;
 
 export const pilotUpdateInputSchema = z.object({
 	id: z.uuid(),
+	version: z.number().int().min(0),
 	status: z.enum(PILOT_STATUS).optional(),
 	ownerId: z.uuid().nullable().optional(),
 	notes: z.string().trim().max(PILOT_NOTES_MAX).nullable().optional(),

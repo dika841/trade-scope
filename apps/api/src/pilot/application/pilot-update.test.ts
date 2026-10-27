@@ -20,6 +20,7 @@ const ROW: TPilotRow = {
 	marketIso2: "US",
 	marketName: "United States",
 	status: "new",
+	version: 0,
 	ownerId: null,
 	ownerName: null,
 	ownerEmail: null,
@@ -35,7 +36,8 @@ const baseRepo: TPilotRepo = {
 	getById: () => Effect.succeed(ROW),
 	listForProduct: () => Effect.succeed([ROW]),
 	create: () => Effect.succeed(ROW),
-	update: (input) => Effect.succeed({ ...ROW, ...input }),
+	update: (input) =>
+		Effect.succeed({ ...ROW, ...input, version: input.version + 1 }),
 	findProduct: () => Effect.succeed({ hsCode: "090121", hsRevision: "HS2022" }),
 	findMarket: () => Effect.succeed({ iso2: "US", name: "United States" }),
 	findOwner: () =>
@@ -71,6 +73,7 @@ const run = (
 
 const INPUT: TPilotUpdateInput = {
 	id: ROW.id,
+	version: ROW.version,
 	status: "in_review",
 };
 
@@ -83,7 +86,7 @@ describe("pilotUpdate", () => {
 
 	it("refuses a transition the workflow does not allow", async (): Promise<void> => {
 		const error = await Effect.runPromise(
-			pilotUpdate({ id: ROW.id, status: "approved" }, ACTOR).pipe(
+			pilotUpdate({ id: ROW.id, version: 0, status: "approved" }, ACTOR).pipe(
 				Effect.provide(layer(baseRepo)),
 				Effect.flip,
 			),
@@ -97,6 +100,7 @@ describe("pilotUpdate", () => {
 			pilotUpdate(
 				{
 					id: ROW.id,
+					version: 0,
 					ownerId: "33333333-3333-4333-8333-333333333333",
 				},
 				ACTOR,
@@ -128,5 +132,32 @@ describe("pilotUpdate", () => {
 		);
 
 		expect(error).toBeInstanceOf(ENotFound);
+	});
+
+	it("refuses a stale version before touching the row", async (): Promise<void> => {
+		const error = await Effect.runPromise(
+			pilotUpdate({ ...INPUT, version: 1 }, ACTOR).pipe(
+				Effect.provide(layer(baseRepo)),
+				Effect.flip,
+			),
+		);
+
+		expect(error).toBeInstanceOf(EConflict);
+	});
+
+	it("reports a conflict when another update wins the race", async (): Promise<void> => {
+		const error = await Effect.runPromise(
+			pilotUpdate(INPUT, ACTOR).pipe(
+				Effect.provide(
+					layer({
+						...baseRepo,
+						update: () => Effect.succeed(null),
+					}),
+				),
+				Effect.flip,
+			),
+		);
+
+		expect(error).toBeInstanceOf(EConflict);
 	});
 });

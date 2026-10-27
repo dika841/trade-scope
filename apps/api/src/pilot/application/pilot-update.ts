@@ -35,6 +35,10 @@ export const pilotUpdate = Effect.fn("pilotUpdate")(function* (
 		return yield* new ENotFound({ message: PILOT_MESSAGE.NOT_FOUND });
 	}
 
+	if (input.version !== current.version) {
+		return yield* new EConflict({ message: PILOT_MESSAGE.STALE });
+	}
+
 	if (input.status !== undefined && input.status !== current.status) {
 		const allowed = PILOT_STATUS_TRANSITION[current.status];
 
@@ -58,7 +62,13 @@ export const pilotUpdate = Effect.fn("pilotUpdate")(function* (
 	const updated = yield* repo.update(input);
 
 	if (updated === null) {
-		return yield* new ENotFound({ message: PILOT_MESSAGE.NOT_FOUND });
+		const exists = yield* repo.getById(input.id);
+
+		if (exists === null) {
+			return yield* new ENotFound({ message: PILOT_MESSAGE.NOT_FOUND });
+		}
+
+		return yield* new EConflict({ message: PILOT_MESSAGE.STALE });
 	}
 
 	yield* activityRepo.insert({

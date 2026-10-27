@@ -1,4 +1,6 @@
 import { pilotUpdateInputSchema, type TPilot } from "@app/schemas";
+import { useQueryClient } from "@tanstack/react-query";
+import { orpc } from "#/libs/orpc/client.ts";
 import {
 	type TConfirmedForm,
 	useConfirmedForm,
@@ -18,6 +20,7 @@ type TPilotEditForm = TConfirmedForm<
 
 export const usePilotEditForm = (pilot: TPilot): TPilotEditForm => {
 	const update = usePilotUpdate();
+	const queryClient = useQueryClient();
 
 	const confirmed = useConfirmedForm({
 		defaultValues: {
@@ -32,10 +35,18 @@ export const usePilotEditForm = (pilot: TPilot): TPilotEditForm => {
 			update.mutate(
 				pilotUpdateInputSchema.parse({
 					id: pilot.id,
+					version: pilot.version,
 					status: value.status === pilot.status ? undefined : value.status,
 					ownerId: value.ownerId === "" ? null : value.ownerId,
 					notes: notes === "" ? null : notes,
 				}),
+				{
+					onError: () => {
+						void queryClient.invalidateQueries({
+							queryKey: orpc.pilot.key(),
+						});
+					},
+				},
 			);
 		},
 	});

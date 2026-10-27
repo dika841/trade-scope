@@ -68,7 +68,11 @@ describe("pilot endpoints", () => {
 			path: `/pilots/${created.id}`,
 			cookie: adminCookie,
 			method: "PATCH",
-			body: { id: created.id, status: PILOT_STATUS.IN_REVIEW },
+			body: {
+				id: created.id,
+				version: created.version,
+				status: PILOT_STATUS.IN_REVIEW,
+			},
 		});
 
 		expect(updated.status).toBe(PILOT_STATUS.IN_REVIEW);
@@ -80,10 +84,44 @@ describe("pilot endpoints", () => {
 			path: `/pilots/${created.id}`,
 			cookie: adminCookie,
 			method: "PATCH",
-			body: { id: created.id, status: PILOT_STATUS.APPROVED },
+			body: {
+				id: created.id,
+				version: created.version,
+				status: PILOT_STATUS.APPROVED,
+			},
 		});
 
 		expect(response.status).toBe(STATUS_CONFLICT);
+	});
+
+	it("refuses two updates that start from the same version", async (): Promise<void> => {
+		const created = await createPilot("E2E concurrent pilot");
+
+		const first = await apiFetch({
+			path: `/pilots/${created.id}`,
+			cookie: adminCookie,
+			method: "PATCH",
+			body: {
+				id: created.id,
+				version: created.version,
+				ownerId: null,
+				notes: "First writer",
+			},
+		});
+		expect(first.status).toBe(200);
+
+		const second = await apiFetch({
+			path: `/pilots/${created.id}`,
+			cookie: adminCookie,
+			method: "PATCH",
+			body: {
+				id: created.id,
+				version: created.version,
+				ownerId: null,
+				notes: "Second writer",
+			},
+		});
+		expect(second.status).toBe(STATUS_CONFLICT);
 	});
 
 	it("refuses an analyst creating a pilot", async (): Promise<void> => {

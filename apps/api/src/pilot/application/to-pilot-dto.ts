@@ -10,6 +10,7 @@ export const toPilotDto = (row: TPilotRow): TPilot =>
 		marketIso2: row.marketIso2,
 		marketName: row.marketName ?? row.marketIso2,
 		status: row.status,
+		version: row.version,
 		ownerId: row.ownerId,
 		ownerName: row.ownerName,
 		ownerEmail: row.ownerEmail,

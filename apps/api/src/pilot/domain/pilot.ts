@@ -18,6 +18,7 @@ export type TPilotRow = {
 	marketIso2: string;
 	marketName: string;
 	status: TPilotStatus;
+	version: number;
 	ownerId: string | null;
 	ownerName: string | null;
 	ownerEmail: string | null;

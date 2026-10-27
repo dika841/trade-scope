@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
 	check,
 	index,
+	integer,
 	pgTable,
 	text,
 	timestamp,
@@ -18,6 +19,7 @@ export const pilotRequest = pgTable(
 		hsRevision: text("hs_revision").notNull(),
 		marketIso2: text("market_iso2").notNull(),
 		status: text("status").$type<TPilotStatus>().notNull(),
+		version: integer("version").notNull().default(0),
 		ownerId: text("owner_id").references(() => user.id, {
 			onDelete: "set null",
 		}),

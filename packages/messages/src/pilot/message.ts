@@ -44,6 +44,8 @@ export const PILOT_MESSAGE = {
 	STATUS_REJECTED: "Rejected",
 	STATUS_COMPLETED: "Completed",
 	STATUS_TRANSITION_INVALID: "That status change is not allowed.",
+	STALE:
+		"This pilot changed since you loaded it. Refresh and try again. Any unsaved change was not applied.",
 	CREATE_ACTION: "Create pilot",
 	CREATING: "Creating…",
 	CREATED: "Pilot created.",

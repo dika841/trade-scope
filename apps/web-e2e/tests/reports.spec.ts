@@ -1,4 +1,4 @@
-import { REPORT_MESSAGE } from "@app/messages";
+import { DASHBOARD_MESSAGE, REPORT_MESSAGE } from "@app/messages";
 import { expect, type Page, test } from "@playwright/test";
 import { confirmAction } from "../support/confirm.ts";
 import { SEED_CREDENTIALS } from "../support/credentials.ts";
@@ -21,6 +21,17 @@ test.describe("report admin flow", () => {
 	test("generates a report, shares it, and revokes the link", async ({
 		browser,
 	}): Promise<void> => {
+		await page.goto("/dashboard");
+		await expect(
+			page.getByRole("main").getByText(DASHBOARD_MESSAGE.TOTAL_PILOTS),
+		).toBeVisible();
+		await expect(
+			page.getByRole("main").getByText(DASHBOARD_MESSAGE.PILOTS_ATTENTION),
+		).toBeVisible();
+		await expect(
+			page.getByRole("main").getByText(DASHBOARD_MESSAGE.TOTAL_REPORTS),
+		).toBeVisible();
+
 		await page.goto("/reports");
 		await expect(
 			page.getByRole("heading", { name: REPORT_MESSAGE.TITLE }),

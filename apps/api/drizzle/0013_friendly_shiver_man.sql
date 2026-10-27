@@ -1,0 +1,1 @@
+ALTER TABLE "pilot_request" ADD COLUMN "version" integer DEFAULT 0 NOT NULL;

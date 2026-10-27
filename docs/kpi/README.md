@@ -1,6 +1,6 @@
 # Engineering Standards Compliance Matrix
 
-The engineering standards this matrix tracks are a **spec-review rubric**, not measured KPIs: they list what every Engineering Spec and every build must already answer. This document splits the rubric into 37 checkable standards, adds 16 the rubric never asks for but this boilerplate already ships, ranks all 53 P0–P3, and records where this repository stands on each.
+The engineering standards this matrix tracks are a **spec-review rubric**, not measured KPIs: they list what every Engineering Spec and every build must already answer. This document splits the rubric into 36 checkable standards, adds 16 the rubric never asks for but this boilerplate already ships, ranks all 52 P0–P3, and records where this repository stands on each.
 
 > **Scope note (23 October 2026):** this repository is adapted for TradeScope.
 > The `@app/grpc` and `@app/storage` packages were removed, the leftover `note`
@@ -54,21 +54,21 @@ The rubric's domain examples (Drive filing, CSI terminology, rebid ambiguity) co
 | Severity | Total | ★ Beyond rubric | Done | Partial | Missing | N/A |
 |----------|-------|-----------------|------|---------|---------|-----|
 | P0 | 17 | 4 | 14 | 0 | 0 | 3 |
-| P1 | 23 | 7 | 18 | 2 | 2 | 1 |
-| P2 | 12 | 5 | 9 | 1 | 1 | 1 |
+| P1 | 23 | 7 | 20 | 1 | 1 | 1 |
+| P2 | 11 | 5 | 8 | 1 | 1 | 1 |
 | P3 | 1 | 0 | 1 | 0 | 0 | 0 |
-| **Total** | **53** | **16** | **42** | **3** | **3** | **5** |
+| **Total** | **52** | **16** | **43** | **2** | **2** | **5** |
 
-That table counts **Status**. **Boilerplate Ready** is a separate axis, tallied separately: **43 Yes, 3 Partial, 7 No.** Both add up to 53. Yes runs ahead of Done because a row can hand the next product everything it needs while staying open here, which is what a written baseline register with no values in it does. Every ★ row but one is a Yes.
+That table counts **Status**. **Boilerplate Ready** is a separate axis, tallied separately: **44 Yes, 2 Partial, 6 No.** Both add up to 52. Yes runs ahead of Done because a row can hand the next product everything it needs while staying open here, which is what a written baseline register with no values in it does. Every ★ row but one is a Yes.
 
-The same 53 rows split by whose desk they land on rather than by how badly they bite:
+The same 52 rows split by whose desk they land on rather than by how badly they bite:
 
 | Type | Total | Done | Partial | Missing | N/A |
 |------|-------|------|---------|---------|-----|
-| Technical | 42 | 37 | 1 | 2 | 2 |
+| Technical | 41 | 38 | 0 | 1 | 2 |
 | Project | 6 | 5 | 1 | 0 | 0 |
 | Business | 5 | 0 | 1 | 1 | 3 |
-| **Total** | **53** | **42** | **3** | **3** | **5** |
+| **Total** | **52** | **43** | **2** | **2** | **5** |
 
 Read that table with the severity one, not instead of it. Technical work dominates the total and is almost entirely done, so what is left is concentrated elsewhere: **not one of the five Business rows is closed**, and none of them will be closed here, because they are the PM's and live outside this repository. Four rows are also Done and still owe something no status column can show, because writing a procedure and carrying it out are different acts: the restore drill and the rollback rehearsal have never been run, metrics and traces have nowhere to be sent, and the walkthrough has not been recorded.
 
@@ -87,7 +87,7 @@ Read that table with the severity one, not instead of it. Technical work dominat
 | Repeated submissions are de-duplicated | The same submission twice must not produce two external actions | Technical | P0 | Done | Yes | The worker claims the deterministic `messageId` from `packages/queue/src/job-publisher.ts` through the `TJobDedupe` port before running a handler and releases it on failure, backed by an atomic `setIfAbsent` in `@app/cache`, so a repeat delivery is skipped while a retry still runs |
 | Retry with backoff on transient failure | Transient failures retry on a defined policy before being treated as failures | Technical | P0 | Done | Yes | `packages/queue/src/job-worker.ts` republishes a failed job to `<queue>.retry` with an exponential per-message delay and an attempt header, bounded by `JOB_RETRY_DEFAULT` |
 | Failed work has a recovery path (dead letter) | Work that fails permanently is preserved for inspection and replay, never dropped | Technical | P0 | Done | Yes | `jobTopologyAssert` declares `<queue>.dlq` beside every queue, and a job that exhausts its attempt budget is parked there instead of discarded |
-| Concurrency tests | Two reviewers, or a retry racing the original, must not create conflicting approvals or duplicate active items | Technical | P0 | Missing | No | The example notes table and its optimistic-concurrency tests were removed with the unused domain. No TradeScope table has a version column yet. Add the guard to the first table whose records can be edited concurrently, rather than to every table pre-emptively |
+| Concurrency tests | Two reviewers, or a retry racing the original, must not create conflicting approvals or duplicate active items | Technical | P0 | Done | Yes | `pilot_request.version` is incremented by a compare-and-set update keyed on `(id, version)` in `apps/api/src/pilot/infrastructure/pilot-repository.ts`; the use case returns a conflict when the version moved, so two reviewers cannot both win. Covered by `pilot-update.test.ts` and `apps/api-e2e/tests/pilots.e2e.test.ts` |
 | Backup and restore | A defined, exercised backup and restore procedure for every stateful store | Project | P0 | Done | Yes | `docs/operations/backup-restore.md` names what holds state and what deliberately is not backed up, sets retention and isolation, and defines a restore drill whose output is the measured recovery time and recovery point. The drill has not been run yet, so those two numbers are recorded as not yet measured rather than guessed |
 | Duplicate prevention validated before enabling live action | Duplicate prevention and recovery are proven *before* the first real external action is allowed | Technical | P0 | Done | Yes | `packages/queue/src/job-worker.test.ts` covers retry routing, dead-lettering, and repeat suppression; the note concurrency tests cover the read-modify-write side against a real database |
 | Validated rules decide, the model only suggests | The model proposes; validated application rules authorize | Technical | P0 | N/A | No | No model in the codebase: no `anthropic`, `openai`, `@ai-sdk`, or `langchain` dependency in any `package.json`. Applies the moment a model output can drive an action |
@@ -108,7 +108,7 @@ Read that table with the severity one, not instead of it. Technical work dominat
 | ★ Infrastructure sits behind swappable ports | Cache, mail, and queue are packages with interfaces and test fakes, not direct client calls in use-cases | Technical | P1 | Done | Yes | `@app/cache` ships `cache-client-fake.ts` for tests and has Upstash/ioredis adapters; `@app/queue`, `@app/mail`, and `@app/logger` follow the same shape. Unused gRPC and object-storage packages were removed |
 | Partial processing is atomic | A multi-write operation either completes or leaves no trace | Technical | P1 | Done | Yes | Every mutating route runs inside one database transaction, opened at the oRPC seam by `effectRunTransactional` so the use cases and their unit tests stay free of a database. Repositories read the active connection rather than the pool captured when their layer was built, and better-auth receives a proxy that resolves it per call, so its user and password writes join the same transaction instead of committing on their own |
 | Timeouts on every outbound call | A lost response must become a failure, not a hang | Technical | P1 | Done | Yes | Every outbound call the api owns is bounded: connection and statement timeouts on the Postgres pools, `commandTimeout` on ioredis and abortable Upstash requests, connection, greeting and socket timeouts on SMTP, and a bounded readiness probe. better-auth is configured for email and password only, so it makes no outbound HTTP call of its own |
-| Explicit intermediate state | States such as *approved but not yet filed* are stored explicitly, never implied by the gap between two steps | Technical | P1 | Missing | No | No domain table carries a lifecycle state column; the example `note` module has been removed. Any future two-step action would leave its middle state unrepresented |
+| Explicit intermediate state | States such as *approved but not yet filed* are stored explicitly, never implied by the gap between two steps | Technical | P1 | Done | Yes | `pilot_request.status` is an explicit lifecycle column (`new`, `in_review`, `approved`, `rejected`, `completed`) and `PILOT_STATUS_TRANSITION` in `@app/schemas` is the single transition table used by the API and the edit form. The review state is stored, not inferred from a gap between two steps |
 | Uncertain results are reconciled by a defined rule | What is uncertain, how it is reconciled, and what must reach a human | Business | P1 | Missing | No | No review queue, no reconciliation rule, no human-review state. The rule itself is the PM's, written outside this repository; the queue and the state are built here once that rule and a workflow that pauses exist |
 | Alert ownership | Every alert has a named owner who receives it | Project | P1 | Done | Yes | All twelve alerts in `docs/operations/alerting.md` name an owner, with `fradotech` as the default that receives anything not reassigned. The document also says why a single default beats an empty column at this team size, and what to do when a second person shares the pager |
 | Deployment is defined | How a build reaches an environment | Technical | P1 | Done | Yes | A `Dockerfile` builds both processes into one image tagged with the root version, `make image` builds it, and `docs/operations/deployment.md` fixes the order: migrate as a separate job, then roll the api, then the worker, with liveness on `/healthz` and readiness on `/ready` |

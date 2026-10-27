@@ -3,7 +3,7 @@ import {
 	type TPilotStatus,
 	PILOT_SORT,
 } from "@app/schemas";
-import { and, asc, count, eq, type SQL } from "drizzle-orm";
+import { and, asc, count, eq, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { Effect, Layer } from "effect";
 import {
@@ -32,6 +32,7 @@ const rowColumns = {
 	marketIso2: pilotRequest.marketIso2,
 	marketName: country.name,
 	status: pilotRequest.status,
+	version: pilotRequest.version,
 	ownerId: pilotRequest.ownerId,
 	ownerName: ownerUser.name,
 	ownerEmail: ownerUser.email,
@@ -191,8 +192,16 @@ export const pilotRepoLayer = Layer.effect(
 
 					const [updated] = await dbActive(db)
 						.update(pilotRequest)
-						.set(patch)
-						.where(eq(pilotRequest.id, input.id))
+						.set({
+							...patch,
+							version: sql`${pilotRequest.version} + 1`,
+						})
+						.where(
+							and(
+								eq(pilotRequest.id, input.id),
+								eq(pilotRequest.version, input.version),
+							),
+						)
 						.returning({ id: pilotRequest.id });
 
 					if (updated === undefined) {

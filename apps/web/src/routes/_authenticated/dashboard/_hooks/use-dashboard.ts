@@ -1,4 +1,4 @@
-import { HEALTH_STATUS } from "@app/schemas";
+import { HEALTH_STATUS, PILOT_STATUS } from "@app/schemas";
 import { APP_VERSION } from "@app/version";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { match } from "ts-pattern";
@@ -53,6 +53,31 @@ export const useDashboardIngestion = (): {
 	);
 
 	return { total: data.total, attention: data.partial + data.failed };
+};
+
+export const useDashboardPilots = (): {
+	total: number;
+	inReview: number;
+} => {
+	const { data: all } = useSuspenseQuery(
+		suspenseQueryOptionsFor(orpc.pilot.list, COUNT_ONLY),
+	);
+	const { data: review } = useSuspenseQuery(
+		suspenseQueryOptionsFor(orpc.pilot.list, {
+			...COUNT_ONLY,
+			status: PILOT_STATUS.IN_REVIEW,
+		}),
+	);
+
+	return { total: all.total, inReview: review.total };
+};
+
+export const useDashboardReports = (): { total: number } => {
+	const { data } = useSuspenseQuery(
+		suspenseQueryOptionsFor(orpc.report.list, COUNT_ONLY),
+	);
+
+	return { total: data.total };
 };
 
 export const useDashboardHealth = (): TDashboardHealth => {
