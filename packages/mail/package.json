@@ -13,7 +13,7 @@
 	"dependencies": {
 		"@app/messages": "workspace:*",
 		"@mobily/ts-belt": "catalog:",
-		"nodemailer": "^10.0.10"
+		"nodemailer": "^10.2.1"
 	},
 	"devDependencies": {
 		"typescript": "catalog:",
